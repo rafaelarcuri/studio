@@ -1,7 +1,7 @@
 
 'use client';
 
-import { DollarSign, Percent, Receipt, Target, TrendingUp, Users } from "lucide-react";
+import { DollarSign, Percent, Receipt, Target, TrendingDown, TrendingUp, Users } from "lucide-react";
 import type { SalesPerson } from "@/data/sales";
 import { Card } from "@/components/ui/card";
 
@@ -20,14 +20,14 @@ const KpiCard = ({ icon: Icon, title, value }: { icon: React.ElementType; title:
 );
 
 export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
-    const { target, achieved, margin, positivations } = salesPerson;
+    const { target, achieved, margin, positivations, inadimplencia } = salesPerson;
     const remaining = Math.max(0, target - achieved);
     const averageTicket = positivations.achieved > 0 ? achieved / positivations.achieved : 0;
 
     const formatCurrency = (value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
             <KpiCard
                 icon={Target}
                 title="Meta"
@@ -57,6 +57,11 @@ export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
                 icon={Receipt}
                 title="Ticket Médio"
                 value={formatCurrency(averageTicket)}
+            />
+             <KpiCard
+                icon={TrendingDown}
+                title="% Inadimplência"
+                value={`${inadimplencia.toFixed(1).replace('.',',')}%`}
             />
         </div>
     );

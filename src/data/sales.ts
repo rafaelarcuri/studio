@@ -17,6 +17,7 @@ export type SalesPerson = {
   target: number
   achieved: number
   margin: number
+  inadimplencia: number
   positivations: {
     target: number
     achieved: number
@@ -63,10 +64,10 @@ const generateMonthlySalesHistory = (seed_offset = 0): MonthlySale[] => {
 // In a real app, this would be a database.
 // For this prototype, we're using an in-memory array.
 let initialSalesData: SalesPerson[] = [
-  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, achieved: 18500, margin: 15.5, positivations: { target: 10, achieved: 7 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(1) },
-  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, achieved: 21000, margin: 18.2, positivations: { target: 8, achieved: 9 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(2) },
-  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, achieved: 15000, margin: 12.0, positivations: { target: 12, achieved: 5 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(3) },
-  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, achieved: 22500, margin: 16.8, positivations: { target: 9, achieved: 10 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(4) },
+  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, achieved: 18500, margin: 15.5, inadimplencia: 4.2, positivations: { target: 10, achieved: 7 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(1) },
+  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, achieved: 21000, margin: 18.2, inadimplencia: 2.1, positivations: { target: 8, achieved: 9 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(2) },
+  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, achieved: 15000, margin: 12.0, inadimplencia: 7.8, positivations: { target: 12, achieved: 5 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(3) },
+  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, achieved: 22500, margin: 16.8, inadimplencia: 3.5, positivations: { target: 9, achieved: 10 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(4) },
 ]
 
 // Update initial achieved amount from history
@@ -96,6 +97,7 @@ export const addSalesPerson = (newPersonData: { name: string; target: number; ma
         target: newPersonData.target,
         achieved: 0,
         margin: newPersonData.margin,
+        inadimplencia: 0,
         positivations: {
             target: newPersonData.positivationsTarget,
             achieved: 0,

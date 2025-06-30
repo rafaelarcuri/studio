@@ -1,5 +1,5 @@
 
-import { DollarSign, Percent, Target, TrendingUp, UserPlus, Users, ArrowUp, ArrowDown } from "lucide-react"
+import { DollarSign, Percent, Target, TrendingUp, UserPlus, Users, ArrowUp, ArrowDown, TrendingDown } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -46,6 +46,9 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
   
   const totalMargin = salesData.reduce((acc, p) => acc + p.margin, 0);
   const averageMargin = salesData.length > 0 ? totalMargin / salesData.length : 0;
+
+  const totalInadimplencia = salesData.reduce((acc, p) => acc + p.inadimplencia, 0);
+  const averageInadimplencia = salesData.length > 0 ? totalInadimplencia / salesData.length : 0;
   
   const totalPositivationsAchieved = salesData.reduce((acc, p) => acc + p.positivations.achieved, 0);
   const totalPositivationsTarget = salesData.reduce((acc, p) => acc + p.positivations.target, 0);
@@ -80,7 +83,7 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
           <CardTitle>Resumo da Equipe</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard 
                 icon={Target}
                 title="Meta Coletiva"
@@ -111,6 +114,11 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
                 icon={Users}
                 title="Positivação"
                 value={`${totalPositivationsAchieved} / ${totalPositivationsTarget}`}
+            />
+            <StatCard 
+                icon={TrendingDown}
+                title="Inadimplência Média"
+                value={`${averageInadimplencia.toFixed(1).replace('.',',')}%`}
             />
           </div>
         </CardContent>
