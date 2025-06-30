@@ -1,4 +1,3 @@
-
 // NOTE: This is a mock user database for prototyping purposes.
 // In a real-world application, you would NEVER store passwords in plaintext.
 // They should be securely hashed and stored in a database.
@@ -19,8 +18,8 @@ export type User = {
 export let users: User[] = [
   {
     id: 102,
-    name: 'Admin',
-    email: 'rhibler@magnumtires.com.br',
+    name: 'Desenvolvedor',
+    email: 'amaffei@magnumtires.com.br',
     password: '123456',
     role: 'gerente',
     position: 'Administrador',
