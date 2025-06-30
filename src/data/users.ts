@@ -13,6 +13,7 @@ export type User = {
   position: string; // "Cargo", e.g., "Vendedor Pleno", "Gerente de Vendas"
   team: string; // "Time/setor", e.g., "Varejo", "Corporativo"
   status: 'ativo' | 'inativo';
+  avatar?: string;
 };
 
 export let users: User[] = [
@@ -25,6 +26,7 @@ export let users: User[] = [
     position: 'Administrador',
     team: 'TI',
     status: 'ativo',
+    avatar: 'https://placehold.co/100x100.png',
   },
   {
     id: 101,
@@ -35,6 +37,7 @@ export let users: User[] = [
     position: 'Gerente de Vendas',
     team: 'Gestão',
     status: 'ativo',
+    avatar: 'https://placehold.co/100x100.png',
   },
   {
     id: 1, // Must match an ID in sales.ts
@@ -46,6 +49,7 @@ export let users: User[] = [
     position: 'Vendedora Pleno',
     team: 'Varejo SP',
     status: 'ativo',
+    avatar: 'https://placehold.co/100x100.png',
   },
   {
     id: 2, // Must match an ID in sales.ts
@@ -57,6 +61,7 @@ export let users: User[] = [
     position: 'Vendedor Sênior',
     team: 'Varejo RJ',
     status: 'ativo',
+    avatar: 'https://placehold.co/100x100.png',
   },
   {
     id: 3, // Must match an ID in sales.ts
@@ -68,6 +73,7 @@ export let users: User[] = [
     position: 'Vendedora Júnior',
     team: 'Varejo SP',
     status: 'inativo',
+    avatar: 'https://placehold.co/100x100.png',
   },
   {
     id: 4, // Must match an ID in sales.ts
@@ -79,6 +85,7 @@ export let users: User[] = [
     position: 'Vendedor Pleno',
     team: 'Varejo MG',
     status: 'ativo',
+    avatar: 'https://placehold.co/100x100.png',
   },
 ];
 

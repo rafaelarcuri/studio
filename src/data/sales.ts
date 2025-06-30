@@ -87,12 +87,12 @@ export const getSalesPersonById = (id: number): SalesPerson | undefined => {
     return getSalesData().find((p: SalesPerson) => p.id === id);
 }
 
-export const addSalesPerson = (newPersonData: { name: string; target: number; margin: number; positivationsTarget: number; }): number => {
+export const addSalesPerson = (newPersonData: { name: string; target: number; margin: number; positivationsTarget: number; avatar?: string }): number => {
     const newId = initialSalesData.length > 0 ? Math.max(...initialSalesData.map(p => p.id)) + 1 : 1;
     const newPerson: SalesPerson = {
         id: newId,
         name: newPersonData.name,
-        avatar: `https://placehold.co/100x100.png`,
+        avatar: newPersonData.avatar || `https://placehold.co/100x100.png`,
         target: newPersonData.target,
         achieved: 0,
         margin: newPersonData.margin,
@@ -110,4 +110,15 @@ export const addSalesPerson = (newPersonData: { name: string; target: number; ma
     }
     initialSalesData.push(newPerson);
     return newId;
+};
+
+export const updateSalesPersonData = (salesPersonId: number, updatedData: Partial<Omit<SalesPerson, 'id'>>) => {
+    const personIndex = initialSalesData.findIndex(p => p.id === salesPersonId);
+    if (personIndex !== -1) {
+        const originalPerson = { ...initialSalesData[personIndex] };
+        initialSalesData[personIndex] = { ...initialSalesData[personIndex], ...updatedData };
+        console.log(`[LOG] SalesPerson ${salesPersonId} updated. From: ${JSON.stringify(originalPerson)} To: ${JSON.stringify(initialSalesData[personIndex])}`);
+        return true;
+    }
+    return false;
 };

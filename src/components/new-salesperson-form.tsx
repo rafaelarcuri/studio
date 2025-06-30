@@ -1,10 +1,12 @@
 
 "use client"
 
+import * as React from "react";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from 'next/navigation'
+import { Camera, User as UserIcon } from 'lucide-react';
 
 import { Button } from "@/components/ui/button"
 import {
@@ -22,6 +24,7 @@ import { useToast } from "@/hooks/use-toast"
 import { addSalesPerson } from "@/data/sales"
 import { addUser, users } from "@/data/users"
 import type { User } from "@/data/users"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -43,6 +46,7 @@ const formSchema = z.object({
   target: z.coerce.number().optional(),
   margin: z.coerce.number().optional(),
   positivationsTarget: z.coerce.number().int().optional(),
+  avatar: z.string().optional(),
 }).refine(data => {
     if (data.role === 'vendedor') {
         return data.target != null && data.target > 0 && data.margin != null && data.margin > 0 && data.positivationsTarget != null && data.positivationsTarget > 0;
@@ -65,10 +69,27 @@ export default function NewSalespersonForm() {
             password: "",
             position: "",
             team: "",
+            avatar: "https://placehold.co/100x100.png"
         },
     })
 
     const role = form.watch("role");
+    const avatarUrl = form.watch("avatar");
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleAvatarClick = () => fileInputRef.current?.click();
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                form.setValue('avatar', reader.result as string, { shouldDirty: true });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         let newUser: User;
@@ -79,6 +100,7 @@ export default function NewSalespersonForm() {
                 target: values.target!,
                 margin: values.margin!,
                 positivationsTarget: values.positivationsTarget!,
+                avatar: values.avatar
             });
             newUser = {
                 id: newSalesPersonId,
@@ -89,7 +111,8 @@ export default function NewSalespersonForm() {
                 salesPersonId: newSalesPersonId,
                 position: values.position,
                 team: values.team,
-                status: 'ativo'
+                status: 'ativo',
+                avatar: values.avatar,
             };
         } else { // Gerente
             const newUserId = Math.max(...users.map(u => u.id)) + 1;
@@ -101,7 +124,8 @@ export default function NewSalespersonForm() {
                 role: 'gerente',
                 position: values.position,
                 team: values.team,
-                status: 'ativo'
+                status: 'ativo',
+                avatar: values.avatar,
             };
         }
 
@@ -122,6 +146,32 @@ export default function NewSalespersonForm() {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                     <CardContent className="space-y-4">
+                        <div className="flex justify-center mb-6">
+                            <div className="relative">
+                                <Avatar className="h-24 w-24">
+                                    <AvatarImage src={avatarUrl} alt="Avatar do usuário" />
+                                    <AvatarFallback>
+                                        <UserIcon className="h-12 w-12" />
+                                    </AvatarFallback>
+                                </Avatar>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="absolute bottom-0 right-0 rounded-full"
+                                    onClick={handleAvatarClick}
+                                >
+                                    <Camera className="h-4 w-4" />
+                                </Button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                    accept="image/*"
+                                />
+                            </div>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}

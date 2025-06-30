@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
+  Camera,
   ChevronDown,
   Download,
   Edit,
@@ -14,10 +15,12 @@ import {
   Search,
   Trash,
   UserX,
-  UserCheck
+  UserCheck,
+  User as UserIcon,
 } from 'lucide-react';
 
 import { users as initialUsers, updateUser, setUserStatus, type User } from '@/data/users';
+import { updateSalesPersonData } from '@/data/sales';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -66,6 +69,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from 'next/navigation';
 
 const editFormSchema = z.object({
@@ -74,6 +78,7 @@ const editFormSchema = z.object({
   position: z.string().min(2, { message: "O cargo é obrigatório." }),
   team: z.string().min(2, { message: "A equipe é obrigatória." }),
   role: z.enum(["vendedor", "gerente"]),
+  avatar: z.string().optional(),
 });
 
 export default function UserManagement() {
@@ -89,10 +94,26 @@ export default function UserManagement() {
 
   const { toast } = useToast();
   const router = useRouter();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof editFormSchema>>({
     resolver: zodResolver(editFormSchema),
   });
+
+  const avatarUrl = form.watch("avatar");
+
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              form.setValue('avatar', reader.result as string, { shouldDirty: true });
+          };
+          reader.readAsDataURL(file);
+      }
+  };
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
@@ -102,6 +123,7 @@ export default function UserManagement() {
         position: user.position,
         team: user.team,
         role: user.role,
+        avatar: user.avatar,
     });
     setIsEditDialogOpen(true);
   };
@@ -131,9 +153,18 @@ export default function UserManagement() {
 
   const onSubmit = (values: z.infer<typeof editFormSchema>) => {
     if (editingUser) {
-        updateUser(editingUser.id, values);
+        const updatedUserData: Partial<User> = { ...values };
+        updateUser(editingUser.id, updatedUserData);
+
+        if(editingUser.role === 'vendedor' && editingUser.salesPersonId) {
+            updateSalesPersonData(editingUser.salesPersonId, {
+                name: values.name,
+                avatar: values.avatar
+            });
+        }
+
         setUsers(prevUsers =>
-            prevUsers.map(u => (u.id === editingUser.id ? { ...u, ...values } : u))
+            prevUsers.map(u => (u.id === editingUser.id ? { ...u, ...updatedUserData } : u))
         );
         toast({
             title: "Usuário Atualizado!",
@@ -251,8 +282,16 @@ export default function UserManagement() {
                 {filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                     <TableCell>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">{user.email}</div>
+                        <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <div className="font-medium">{user.name}</div>
+                                <div className="text-sm text-muted-foreground">{user.email}</div>
+                            </div>
+                        </div>
                     </TableCell>
                     <TableCell>{user.position}</TableCell>
                     <TableCell>{user.team}</TableCell>
@@ -305,6 +344,30 @@ export default function UserManagement() {
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="flex justify-center mb-4">
+                            <div className="relative">
+                                <Avatar className="h-24 w-24">
+                                    <AvatarImage src={avatarUrl} />
+                                    <AvatarFallback><UserIcon className="h-12 w-12" /></AvatarFallback>
+                                </Avatar>
+                                <Button 
+                                    type="button" 
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={handleAvatarClick} 
+                                    className="absolute bottom-0 right-0 rounded-full"
+                                >
+                                    <Camera className="h-4 w-4" />
+                                </Button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                />
+                            </div>
+                        </div>
                         <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nome</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="position" render={({ field }) => (<FormItem><FormLabel>Cargo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
