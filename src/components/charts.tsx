@@ -2,6 +2,8 @@
 "use client"
 
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -106,7 +108,7 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
 
   const chartConfig: ChartConfig = {
     total: {
-      label: isIndividualView ? salesData[0].name : "Equipe",
+      label: isIndividualView ? "Faturamento" : "Equipe",
       color: "hsl(var(--primary))",
     },
     ...dynamicChartConfig,
@@ -115,7 +117,7 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Evolução de Vendas</CardTitle>
+        <CardTitle>Evolução de Faturamento Diário</CardTitle>
         <CardDescription>Progresso de vendas acumulado (últimos 30 dias).</CardDescription>
       </CardHeader>
       <CardContent>
@@ -172,4 +174,63 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
       </CardContent>
     </Card>
   )
+}
+
+
+export function MonthlyPerformanceChart({ salesPerson }: { salesPerson: SalesPerson }) {
+  const chartData = salesPerson.monthlySales.map(item => ({
+    name: format(new Date(item.month), 'MMM-yy', { locale: ptBR }),
+    meta: item.target,
+    realizado: item.sales,
+  }));
+
+  const chartConfig: ChartConfig = {
+    meta: {
+      label: "Meta",
+      color: "hsl(var(--chart-2))",
+    },
+    realizado: {
+      label: "Realizado",
+      color: "hsl(var(--primary))",
+    },
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Meta vs. Realizado (Últimos 12 Meses)</CardTitle>
+        <CardDescription>Análise do histórico de metas e resultados.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 20, right: 20, left: -10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="name"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                fontSize={12}
+              />
+              <YAxis
+                stroke="#888888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `R$${(value as number) / 1000}k`}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent formatter={(value) => `R$${(value as number).toLocaleString("pt-BR")}`} indicator="dot" />}
+              />
+              <Legend />
+              <Bar dataKey="meta" fill="var(--color-meta)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="realizado" fill="var(--color-realizado)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
 }

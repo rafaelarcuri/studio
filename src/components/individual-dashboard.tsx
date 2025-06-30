@@ -10,8 +10,9 @@ import type { SalesPerson } from '@/data/sales';
 import { getSalesPersonById } from '@/data/sales';
 import { useAuth } from "@/hooks/use-auth";
 import { IndividualPerformanceCard } from '@/components/individual-performance-card';
-import { SalesTrendChart } from '@/components/charts';
+import { MonthlyPerformanceChart, SalesTrendChart } from '@/components/charts';
 import { Button } from '@/components/ui/button';
+import { SalespersonCustomerList } from "./salesperson-customer-list";
 
 interface IndividualDashboardProps {
     salespersonId: number;
@@ -68,12 +69,14 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
             </header>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 space-y-6">
                      <IndividualPerformanceCard 
                         salesPerson={salesPerson}
                     />
+                    <SalespersonCustomerList salespersonId={salespersonId} />
                 </div>
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 space-y-6">
+                    <MonthlyPerformanceChart salesPerson={salesPerson} />
                     <SalesTrendChart salesData={[salesPerson]} />
                 </div>
             </div>
