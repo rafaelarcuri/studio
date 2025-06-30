@@ -9,6 +9,7 @@ import { getSalesPersonById } from '@/data/sales';
 import { IndividualPerformanceCard } from '@/components/individual-performance-card';
 import { MonthlySalesChart, SalesTrendChart } from '@/components/charts';
 import { Button } from '@/components/ui/button';
+import { GoalAchievementCard } from "@/components/goal-achievement-card";
 
 
 interface IndividualDashboardProps {
@@ -53,10 +54,11 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
             </header>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 space-y-6">
                      <IndividualPerformanceCard 
                         salesPerson={salesPerson}
                     />
+                    <GoalAchievementCard salesPerson={salesPerson} />
                 </div>
                 <div className="lg:col-span-2 space-y-6">
                     <SalesTrendChart salesData={[salesPerson]} />
