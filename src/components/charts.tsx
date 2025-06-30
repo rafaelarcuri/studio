@@ -259,7 +259,11 @@ export function MonthlySalesChart({ salesData }: ChartsProps) {
                     ]}
                     labelClassName="font-bold"
                     indicator="dot"
-                    labelFormatter={(label) => format(new Date(label), "MMMM yyyy", { locale: ptBR })}
+                    labelFormatter={(_, payload) => {
+                      const date = payload?.[0]?.payload?.month
+                      if (!date) return null
+                      return format(new Date(date), "MMMM yyyy", { locale: ptBR })
+                    }}
                   />
                 }
               />
