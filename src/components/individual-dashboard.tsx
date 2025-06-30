@@ -13,6 +13,7 @@ import { MonthlyPerformanceChart, SalesTrendChart } from '@/components/charts';
 import { Button } from '@/components/ui/button';
 import { SalespersonCustomerList } from "./salesperson-customer-list";
 import { GoalAchievementCard } from "./goal-achievement-card";
+import { IndividualKpiPanel } from "./individual-kpi-panel";
 
 interface IndividualDashboardProps {
     salespersonId: number;
@@ -67,6 +68,8 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                     Sair
                 </Button>
             </header>
+
+            <IndividualKpiPanel salesPerson={salesPerson} />
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-1 space-y-6">
