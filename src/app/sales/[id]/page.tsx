@@ -2,19 +2,14 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import IndividualDashboard from '@/components/individual-dashboard';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type IndividualPageProps = {
-    params: {
-        id: string;
-    }
-}
-
-export default function IndividualSalesPage({ params }: IndividualPageProps) {
-    const { id } = params;
+export default function IndividualSalesPage() {
+    const params = useParams();
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const numericId = parseInt(id, 10);
     const { user, isLoading } = useAuth();
     const router = useRouter();
