@@ -4,7 +4,7 @@
 import { useState } from "react"
 import Link from 'next/link'
 import { useRouter } from "next/navigation"
-import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users, Settings, ClipboardCheck } from "lucide-react"
+import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users, Settings, ClipboardCheck, PieChart } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { getSalesData } from "@/data/sales"
@@ -73,6 +73,10 @@ export default function SalesDashboard() {
                  <DropdownMenuItem onSelect={() => router.push('/tasks')}>
                   <ClipboardCheck className="mr-2 h-4 w-4" />
                   <span>Quadro de Tarefas</span>
+                </DropdownMenuItem>
+                 <DropdownMenuItem onSelect={() => router.push('/analytics')}>
+                  <PieChart className="mr-2 h-4 w-4" />
+                  <span>Análise de Produtividade</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => router.push('/ranking')}>
                   <Trophy className="mr-2 h-4 w-4" />
