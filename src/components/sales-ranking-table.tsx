@@ -50,6 +50,7 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
               <TableHead className="text-right">Faturamento</TableHead>
               <TableHead className="text-right">Qtd. Clientes</TableHead>
               <TableHead className="text-right">Ticket Médio</TableHead>
+              <TableHead className="text-right">Inadimplência</TableHead>
               <TableHead className="text-right">% Meta</TableHead>
             </TableRow>
           </TableHeader>
@@ -115,6 +116,9 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
                   </TableCell>
                    <TableCell className="text-right font-mono">
                      R$ {averageTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                   </TableCell>
+                   <TableCell className="text-right font-mono">
+                     {person.inadimplencia.toFixed(1).replace('.',',')}%
                    </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
