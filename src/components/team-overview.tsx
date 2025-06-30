@@ -4,6 +4,7 @@ import { DollarSign, Percent, Target, UserPlus, TrendingUp, Users } from "lucide
 import type { SalesPerson } from "@/data/sales"
 import { SalesTrendChart, TeamContributionChart, MonthlySalesChart } from "@/components/charts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { SalesRankingTable } from "./sales-ranking-table"
 
 interface TeamOverviewProps {
   salesData: SalesPerson[]
@@ -64,6 +65,9 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
           </div>
         </CardContent>
       </Card>
+      
+      <SalesRankingTable salesData={salesData} />
+
       <TeamContributionChart salesData={salesData} />
       <SalesTrendChart salesData={salesData} />
       <MonthlySalesChart salesData={salesData} />
