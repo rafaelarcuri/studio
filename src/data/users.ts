@@ -14,6 +14,13 @@ export type User = {
 
 export const users: User[] = [
   {
+    id: 102,
+    name: 'Admin',
+    email: 'rhibler@magnumtires.com.br',
+    password: '123456',
+    role: 'gerente',
+  },
+  {
     id: 101,
     name: 'Gerente de Vendas',
     email: 'gerente@vendasagil.com',
