@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -70,10 +69,6 @@ export default function SalesDashboard() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Gerenciamento</DropdownMenuLabel>
-                 <DropdownMenuItem onSelect={() => router.push('/tasks')}>
-                  <ClipboardCheck className="mr-2 h-4 w-4" />
-                  <span>Quadro de Tarefas</span>
-                </DropdownMenuItem>
                  <DropdownMenuItem onSelect={() => router.push('/analytics')}>
                   <PieChart className="mr-2 h-4 w-4" />
                   <span>Análise de Produtividade</span>
@@ -85,15 +80,21 @@ export default function SalesDashboard() {
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <ClipboardList className="mr-2 h-4 w-4" />
-                    <span>Gestão de Metas</span>
+                    <span>Metas e Tarefas</span>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
+                       <DropdownMenuItem onSelect={() => router.push('/tasks')}>
+                        <ClipboardCheck className="mr-2 h-4 w-4" />
+                        <span>Quadro de Tarefas</span>
+                       </DropdownMenuItem>
+                       <DropdownMenuSeparator />
+                       <DropdownMenuLabel>Gestão de Metas</DropdownMenuLabel>
                        <DropdownMenuItem onSelect={() => router.push('/goals/upload')}>
-                        Cadastro e Edição em Massa
+                        Cadastro em Massa
                       </DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => router.push('/goals')}>
-                        Alteração de Metas
+                        Alteração Individual
                       </DropdownMenuItem>
                        <DropdownMenuItem onSelect={() => router.push('/goals')}>
                         Histórico de Metas
