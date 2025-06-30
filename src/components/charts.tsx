@@ -1,7 +1,8 @@
+
 "use client"
 
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { addMonths, format, parseISO } from 'date-fns'
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -178,50 +179,41 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
 export function MonthlySalesChart({ salesData }: ChartsProps) {
   const isIndividualView = salesData.length === 1;
   const description = isIndividualView
-    ? `Análise do seu histórico de vendas.`
-    : "Análise do histórico de vendas da equipe.";
+    ? `Análise do seu histórico de metas e resultados.`
+    : "Análise do histórico de metas e resultados da equipe.";
 
-  const monthlyTotals: { [month: string]: number } = {}
+  const monthlyData: { [month: string]: { realizado: number; meta: number } } = {}
 
+  // Aggregate monthly data
   salesData.forEach(person => {
     person.monthlySales?.forEach(sale => {
-      if (monthlyTotals[sale.month]) {
-        monthlyTotals[sale.month] += sale.sales
+      if (monthlyData[sale.month]) {
+        monthlyData[sale.month].realizado += sale.sales
+        monthlyData[sale.month].meta += sale.target
       } else {
-        monthlyTotals[sale.month] = sale.sales
+        monthlyData[sale.month] = {
+          realizado: sale.sales,
+          meta: sale.target,
+        }
       }
     })
   })
 
-  const historicalData = Object.entries(monthlyTotals)
-    .map(([month, sales]) => ({
+  const chartData = Object.entries(monthlyData)
+    .map(([month, data]) => ({
       month: parseISO(month),
-      valor: sales,
+      ...data,
     }))
-    .sort((a, b) => a.month.getTime() - b.month.getTime());
-
-  const last12MonthsData = historicalData.slice(-12);
-  
-  const salesValues = last12MonthsData.map(d => d.valor);
-  const average = salesValues.length > 0 ? salesValues.reduce((a, b) => a + b, 0) / salesValues.length : 0;
-
-  const forecast = average * 1.1; // Simple forecast: 10% more than average
-
-  const lastMonthDate = last12MonthsData.length > 0 ? last12MonthsData[last12MonthsData.length - 1].month : new Date();
-  const nextMonthDate = addMonths(lastMonthDate, 1);
-
-  const chartData = [
-    ...last12MonthsData.map(d => ({ ...d, previsao: null })),
-    { month: nextMonthDate, valor: null, previsao: forecast }
-  ];
+    .sort((a, b) => a.month.getTime() - b.month.getTime())
+    .slice(-12); // Ensure we only show last 12 months
 
   const chartConfig: ChartConfig = {
-    valor: {
-      label: "Valor",
+    realizado: {
+      label: "Realizado",
       color: "hsl(var(--primary))",
     },
-    previsao: {
-      label: "Previsão",
+    meta: {
+      label: "Meta",
       color: "hsl(var(--accent))",
     }
   }
@@ -229,7 +221,7 @@ export function MonthlySalesChart({ salesData }: ChartsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Vendas nos últimos meses</CardTitle>
+        <CardTitle>Meta vs. Realizado (Últimos 12 Meses)</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -237,7 +229,7 @@ export function MonthlySalesChart({ salesData }: ChartsProps) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={chartData}
-              margin={{ top: 20, right: 20, left: -10, bottom: 20 }}
+              margin={{ top: 20, right: 20, left: -10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis
@@ -259,7 +251,7 @@ export function MonthlySalesChart({ salesData }: ChartsProps) {
                 content={
                   <ChartTooltipContent
                     formatter={(value, name) => [
-                      `R$${(value as number).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                      `R$${(value as number).toLocaleString("pt-BR", {minimumFractionDigits: 0, maximumFractionDigits: 0})}`,
                       chartConfig[name as keyof typeof chartConfig]?.label,
                     ]}
                     labelClassName="font-bold"
@@ -272,32 +264,9 @@ export function MonthlySalesChart({ salesData }: ChartsProps) {
                   />
                 }
               />
-              <Legend 
-                verticalAlign="bottom"
-                content={({ payload }) => (
-                  <div className="flex justify-center items-center gap-4 mt-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3" style={{backgroundColor: 'hsl(var(--primary))'}}></div>
-                      <span className="text-xs text-muted-foreground">Valor</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                       <div className="w-4 h-px" style={{backgroundColor: 'hsl(var(--destructive))', border: '1px dashed'}}></div>
-                      <span className="text-xs text-muted-foreground">Média dos últimos 12 meses</span>
-                    </div>
-                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 border-2 border-dashed" style={{borderColor: 'hsl(var(--accent))'}}></div>
-                      <span className="text-xs text-muted-foreground">Previsão</span>
-                    </div>
-                  </div>
-                )}
-              />
-              <ReferenceLine 
-                y={average} 
-                stroke="hsl(var(--destructive))" 
-                strokeDasharray="3 3" 
-              />
-              <Bar dataKey="valor" fill="var(--color-valor)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="previsao" fill="var(--color-previsao)" radius={[4, 4, 0, 0]} strokeDasharray="5 5" stroke="var(--color-previsao)" strokeWidth={2} fillOpacity={0.3} />
+              <Legend />
+              <Bar dataKey="meta" fill="var(--color-meta)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="realizado" fill="var(--color-realizado)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>

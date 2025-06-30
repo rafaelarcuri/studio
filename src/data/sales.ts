@@ -7,6 +7,7 @@ export type SalesHistory = {
 export type MonthlySale = {
   month: string // "YYYY-MM-DD"
   sales: number
+  target: number
 }
 
 export type SalesPerson = {
@@ -47,9 +48,12 @@ const generateMonthlySalesHistory = (seed_offset = 0): MonthlySale[] => {
     const today = new Date();
     for (let i = 11; i >= 0; i--) {
         const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const monthlyAchieved = Math.floor(random() * (180000 - 50000) + 50000) / 4;
+        const monthlyTarget = monthlyAchieved * (1 + (random() * 0.4 - 0.1)); // Target is between -10% and +30% of achieved
         sales.push({
             month: date.toISOString().slice(0, 7) + '-01',
-            sales: Math.floor(random() * (180000 - 50000) + 50000) / 4,
+            sales: monthlyAchieved,
+            target: Math.floor(monthlyTarget),
         });
     }
     return sales;
@@ -101,7 +105,7 @@ export const addSalesPerson = (newPersonData: { name: string; target: number; ma
         monthlySales: Array.from({ length: 12 }, (_, i) => {
             const today = new Date();
             const date = new Date(today.getFullYear(), today.getMonth() - (11 - i), 1);
-            return { month: date.toISOString().slice(0, 7) + '-01', sales: 0 };
+            return { month: date.toISOString().slice(0, 7) + '-01', sales: 0, target: Math.floor(newPersonData.target / 12) };
         }),
     }
     initialSalesData.push(newPerson);
