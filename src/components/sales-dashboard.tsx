@@ -15,6 +15,7 @@ import { IndividualPerformanceCard } from "@/components/individual-performance-c
 import { TeamOverview } from "@/components/team-overview"
 import { Button } from "@/components/ui/button"
 import { SalesRankingTable } from "./sales-ranking-table"
+import { TeamContributionChart } from "./charts"
 
 
 export default function SalesDashboard() {
@@ -101,6 +102,7 @@ export default function SalesDashboard() {
         </div>
         <div className="lg:col-span-2 space-y-6">
           <TeamOverview salesData={salesData} globalTarget={globalTarget} />
+          <TeamContributionChart salesData={salesData} />
           <SalesRankingTable salesData={salesData} />
         </div>
       </div>

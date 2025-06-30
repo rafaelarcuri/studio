@@ -13,29 +13,79 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import type { SalesPerson } from "@/data/sales"
+import { useState } from "react";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
 interface ChartsProps {
   salesData: SalesPerson[]
 }
 
 export function TeamContributionChart({ salesData }: ChartsProps) {
+  const [view, setView] = useState<"valor" | "percentual">("valor")
+
+  const totalAchieved = salesData.reduce((sum, p) => sum + p.achieved, 0)
+
   const chartData = salesData.map(person => ({
     name: person.name,
-    vendas: person.achieved,
+    valor: person.achieved,
+    percentual: totalAchieved > 0 ? (person.achieved / totalAchieved) * 100 : 0,
   }))
 
   const chartConfig: ChartConfig = {
-    vendas: {
-      label: "Vendas",
-      color: "hsl(var(--foreground))",
+    valor: {
+      label: "Valor",
+      color: "hsl(var(--primary))",
     },
+    percentual: {
+      label: "Participação",
+      color: "hsl(var(--primary))",
+    },
+  }
+
+  const dataKey = view === 'valor' ? 'valor' : 'percentual';
+  
+  const yAxisTickFormatter = (value: any) => {
+    if (view === 'valor') {
+        return `R$${Number(value) / 1000}k`
+    }
+    return `${Number(value).toFixed(0)}%`
+  }
+  
+  const tooltipFormatter = (value: number) => {
+      if (view === 'valor') {
+          return `R$${value.toLocaleString("pt-BR")}`
+      }
+      return `${value.toFixed(2)}%`
   }
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Contribuição da Equipe</CardTitle>
-        <CardDescription>Valor vendido por cada membro.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Contribuição da Equipe</CardTitle>
+          <CardDescription>
+            {view === 'valor'
+              ? 'Valor vendido por cada membro.'
+              : 'Participação percentual no faturamento total da equipe.'}
+          </CardDescription>
+        </div>
+        <ToggleGroup
+          type="single"
+          defaultValue="valor"
+          value={view}
+          onValueChange={(value) => {
+            if (value) setView(value as "valor" | "percentual")
+          }}
+          aria-label="Tipo de visualização"
+          className="h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
+        >
+          <ToggleGroupItem value="valor" aria-label="Ver em valor" className="h-7 px-2 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm">
+            R$
+          </ToggleGroupItem>
+          <ToggleGroupItem value="percentual" aria-label="Ver em percentual" className="h-7 px-2 data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm">
+            %
+          </ToggleGroupItem>
+        </ToggleGroup>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px] w-full">
@@ -57,19 +107,19 @@ export function TeamContributionChart({ salesData }: ChartsProps) {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={value => `R$${value / 1000}k`}
+                tickFormatter={yAxisTickFormatter}
               />
               <ChartTooltip
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    formatter={value => `R$${(value as number).toLocaleString("pt-BR")}`}
+                    formatter={tooltipFormatter}
                     labelClassName="font-bold"
                     indicator="dot"
                   />
                 }
               />
-              <Bar dataKey="vendas" fill="hsl(var(--foreground))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey={dataKey} fill="var(--color-valor)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
