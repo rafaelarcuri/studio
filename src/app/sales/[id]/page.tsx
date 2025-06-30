@@ -1,4 +1,11 @@
+
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import IndividualDashboard from '@/components/individual-dashboard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type IndividualPageProps = {
     params: {
@@ -8,9 +15,26 @@ type IndividualPageProps = {
 
 export default function IndividualSalesPage({ params }: IndividualPageProps) {
     const { id } = params;
-    
     const numericId = parseInt(id, 10);
-    
+    const { user, isLoading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (isLoading) return;
+
+        if (!user) {
+            router.replace('/login');
+            return;
+        }
+
+        // A manager can view any page, but a salesperson can only view their own.
+        if (user.role === 'vendedor' && user.salesPersonId !== numericId) {
+            // Redirect to their own page if they try to access another
+            router.replace(`/sales/${user.salesPersonId}`);
+        }
+
+    }, [user, isLoading, router, numericId]);
+
     // Basic validation for the ID
     if (isNaN(numericId)) {
         return (
@@ -20,6 +44,23 @@ export default function IndividualSalesPage({ params }: IndividualPageProps) {
                     <p className="text-muted-foreground">O ID fornecido não é válido.</p>
                 </div>
             </main>
+        )
+    }
+
+    if (isLoading || !user || (user.role === 'vendedor' && user.salesPersonId !== numericId)) {
+        return (
+             <div className="p-8 space-y-8">
+                <Skeleton className="h-12 w-1/3" />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-1 space-y-6">
+                        <Skeleton className="h-96 w-full" />
+                    </div>
+                    <div className="lg:col-span-2 space-y-6">
+                         <Skeleton className="h-64 w-full" />
+                         <Skeleton className="h-64 w-full" />
+                    </div>
+                </div>
+            </div>
         )
     }
 

@@ -3,11 +3,13 @@
 
 import { useState } from "react"
 import Link from 'next/link'
-import { PlusCircle, Target, Trophy } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { PlusCircle, Target, Trophy, LogOut } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { getSalesData } from "@/data/sales"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/use-auth"
 import { GoalSetter } from "@/components/goal-setter"
 import { IndividualPerformanceCard } from "@/components/individual-performance-card"
 import { TeamOverview } from "@/components/team-overview"
@@ -18,6 +20,8 @@ export default function SalesDashboard() {
   const [salesData] = useState<SalesPerson[]>(getSalesData)
   const [globalTarget, setGlobalTarget] = useState<number | undefined>(100000);
   const { toast } = useToast()
+  const { logout } = useAuth();
+  const router = useRouter();
 
   const handleSetGlobalTarget = (target: number) => {
     setGlobalTarget(target);
@@ -25,6 +29,11 @@ export default function SalesDashboard() {
         title: "Meta Global Definida!",
         description: `A nova meta da equipe é de R$ ${target.toLocaleString("pt-BR")}.`,
     });
+  }
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
   }
 
   return (
@@ -36,7 +45,7 @@ export default function SalesDashboard() {
             Seu dashboard de performance em tempo real.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
             <GoalSetter onSetTarget={handleSetGlobalTarget}>
                 <Button variant="outline">
                     <Target className="mr-2 h-4 w-4" />
@@ -54,6 +63,10 @@ export default function SalesDashboard() {
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Adicionar Vendedor
               </Link>
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
             </Button>
         </div>
       </header>
