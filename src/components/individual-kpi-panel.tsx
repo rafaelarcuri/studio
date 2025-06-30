@@ -1,7 +1,7 @@
 
 'use client';
 
-import { DollarSign, Percent, Receipt, Target, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { DollarSign, Percent, Receipt, Target, TrendingDown, TrendingUp, UserPlus, Users } from "lucide-react";
 import type { SalesPerson } from "@/data/sales";
 import { Card } from "@/components/ui/card";
 
@@ -20,7 +20,7 @@ const KpiCard = ({ icon: Icon, title, value }: { icon: React.ElementType; title:
 );
 
 export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
-    const { target, achieved, margin, positivations, inadimplencia } = salesPerson;
+    const { target, achieved, margin, positivations, inadimplencia, newRegistrations } = salesPerson;
     const remaining = Math.max(0, target - achieved);
     const averageTicket = positivations.achieved > 0 ? achieved / positivations.achieved : 0;
     const inadimplenciaValor = achieved * (inadimplencia / 100);
@@ -28,7 +28,7 @@ export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
     const formatCurrency = (value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
             <KpiCard
                 icon={Target}
                 title="Meta"
@@ -49,15 +49,15 @@ export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
                 title="% Margem"
                 value={`${margin.toFixed(1).replace('.',',')}%`}
             />
-            <KpiCard
+             <KpiCard
                 icon={Users}
                 title="Positivação"
                 value={`${positivations.achieved} / ${positivations.target}`}
             />
             <KpiCard
-                icon={Receipt}
-                title="Ticket Médio"
-                value={formatCurrency(averageTicket)}
+                icon={UserPlus}
+                title="Novos Cadastros"
+                value={`${newRegistrations.achieved} / ${newRegistrations.target}`}
             />
              <KpiCard
                 icon={TrendingDown}
@@ -68,6 +68,11 @@ export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
                 icon={TrendingDown}
                 title="Inadimplência (R$)"
                 value={formatCurrency(inadimplenciaValor)}
+            />
+             <KpiCard
+                icon={Receipt}
+                title="Ticket Médio"
+                value={formatCurrency(averageTicket)}
             />
         </div>
     );

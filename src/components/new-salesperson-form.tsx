@@ -46,10 +46,11 @@ const formSchema = z.object({
   target: z.coerce.number().optional(),
   margin: z.coerce.number().optional(),
   positivationsTarget: z.coerce.number().int().optional(),
+  newRegistrationsTarget: z.coerce.number().int().optional(),
   avatar: z.string().optional(),
 }).refine(data => {
     if (data.role === 'vendedor') {
-        return data.target != null && data.target > 0 && data.margin != null && data.margin > 0 && data.positivationsTarget != null && data.positivationsTarget > 0;
+        return data.target != null && data.target > 0 && data.margin != null && data.margin > 0 && data.positivationsTarget != null && data.positivationsTarget > 0 && data.newRegistrationsTarget != null && data.newRegistrationsTarget > 0;
     }
     return true;
 }, {
@@ -100,6 +101,7 @@ export default function NewSalespersonForm() {
                 target: values.target!,
                 margin: values.margin!,
                 positivationsTarget: values.positivationsTarget!,
+                newRegistrationsTarget: values.newRegistrationsTarget!,
                 avatar: values.avatar
             });
             newUser = {
@@ -264,7 +266,7 @@ export default function NewSalespersonForm() {
                         {role === 'vendedor' && (
                             <div className="pt-4 border-t">
                                 <h3 className="text-lg font-medium mb-2">Metas do Vendedor</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="target"
@@ -299,6 +301,19 @@ export default function NewSalespersonForm() {
                                             <FormLabel>Meta de Positivação</FormLabel>
                                             <FormControl>
                                                 <Input type="number" placeholder="Ex: 10" {...field} value={field.value ?? ''} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="newRegistrationsTarget"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Meta Novos Cadastros</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="Ex: 5" {...field} value={field.value ?? ''} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

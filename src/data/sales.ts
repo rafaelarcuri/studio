@@ -23,6 +23,10 @@ export type SalesPerson = {
     target: number
     achieved: number
   }
+  newRegistrations: {
+    target: number
+    achieved: number
+  }
   salesHistory: SalesHistory[]
   monthlySales: MonthlySale[]
 }
@@ -65,10 +69,10 @@ const generateMonthlySalesHistory = (seed_offset = 0): MonthlySale[] => {
 // In a real app, this would be a database.
 // For this prototype, we're using an in-memory array.
 let initialSalesData: SalesPerson[] = [
-  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, quarterlyTarget: 75000, achieved: 18500, margin: 15.5, inadimplencia: 4.2, positivations: { target: 10, achieved: 7 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(1) },
-  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, quarterlyTarget: 60000, achieved: 21000, margin: 18.2, inadimplencia: 2.1, positivations: { target: 8, achieved: 9 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(2) },
-  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, quarterlyTarget: 90000, achieved: 15000, margin: 12.0, inadimplencia: 7.8, positivations: { target: 12, achieved: 5 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(3) },
-  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, quarterlyTarget: 66000, achieved: 22500, margin: 16.8, inadimplencia: 3.5, positivations: { target: 9, achieved: 10 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(4) },
+  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, quarterlyTarget: 75000, achieved: 18500, margin: 15.5, inadimplencia: 4.2, positivations: { target: 10, achieved: 7 }, newRegistrations: { target: 5, achieved: 4 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(1) },
+  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, quarterlyTarget: 60000, achieved: 21000, margin: 18.2, inadimplencia: 2.1, positivations: { target: 8, achieved: 9 }, newRegistrations: { target: 4, achieved: 5 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(2) },
+  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, quarterlyTarget: 90000, achieved: 15000, margin: 12.0, inadimplencia: 7.8, positivations: { target: 12, achieved: 5 }, newRegistrations: { target: 6, achieved: 3 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(3) },
+  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, quarterlyTarget: 66000, achieved: 22500, margin: 16.8, inadimplencia: 3.5, positivations: { target: 9, achieved: 10 }, newRegistrations: { target: 5, achieved: 6 }, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(4) },
 ]
 
 // Update initial achieved amount from history
@@ -89,7 +93,7 @@ export const getSalesPersonById = (id: number): SalesPerson | undefined => {
     return getSalesData().find((p: SalesPerson) => p.id === id);
 }
 
-export const addSalesPerson = (newPersonData: { name: string; target: number; margin: number; positivationsTarget: number; avatar?: string }): number => {
+export const addSalesPerson = (newPersonData: { name: string; target: number; margin: number; positivationsTarget: number; newRegistrationsTarget: number; avatar?: string }): number => {
     const newId = initialSalesData.length > 0 ? Math.max(...initialSalesData.map(p => p.id)) + 1 : 1;
     const newPerson: SalesPerson = {
         id: newId,
@@ -102,6 +106,10 @@ export const addSalesPerson = (newPersonData: { name: string; target: number; ma
         inadimplencia: 0,
         positivations: {
             target: newPersonData.positivationsTarget,
+            achieved: 0,
+        },
+        newRegistrations: {
+            target: newPersonData.newRegistrationsTarget,
             achieved: 0,
         },
         // New employees start with no sales history

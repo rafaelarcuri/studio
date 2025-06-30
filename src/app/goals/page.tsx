@@ -46,6 +46,9 @@ import { useToast } from "@/hooks/use-toast";
 const editFormSchema = z.object({
   target: z.coerce.number({ invalid_type_error: 'A meta deve ser um número.' }).positive({ message: 'A meta deve ser um valor positivo.' }),
   quarterlyTarget: z.coerce.number({ invalid_type_error: 'A meta deve ser um número.' }).positive({ message: 'A meta deve ser um valor positivo.' }),
+  margin: z.coerce.number({ invalid_type_error: 'A margem deve ser um número.' }).positive({ message: 'A margem deve ser um valor positivo.' }),
+  positivationsTarget: z.coerce.number({ invalid_type_error: 'A meta deve ser um número.' }).int().positive({ message: 'A meta deve ser um valor inteiro positivo.' }),
+  newRegistrationsTarget: z.coerce.number({ invalid_type_error: 'A meta deve ser um número.' }).int().positive({ message: 'A meta deve ser um valor inteiro positivo.' }),
 });
 
 const formatCurrency = (value: number) => `R$ ${value.toLocaleString('pt-BR')}`;
@@ -84,21 +87,37 @@ export default function GoalsPage() {
     form.reset({
       target: salesPerson.target,
       quarterlyTarget: salesPerson.quarterlyTarget,
+      margin: salesPerson.margin,
+      positivationsTarget: salesPerson.positivations.target,
+      newRegistrationsTarget: salesPerson.newRegistrations.target,
     });
     setIsEditDialogOpen(true);
   };
   
   const onSubmit = (values: z.infer<typeof editFormSchema>) => {
     if (editingUser) {
+        const newPositivations = { ...editingUser.positivations, target: values.positivationsTarget };
+        const newNewRegistrations = { ...editingUser.newRegistrations, target: values.newRegistrationsTarget };
+
         updateSalesPersonData(editingUser.id, {
             target: values.target,
             quarterlyTarget: values.quarterlyTarget,
+            margin: values.margin,
+            positivations: newPositivations,
+            newRegistrations: newNewRegistrations
         });
 
         // Update local state to reflect changes instantly
         setSalesPeople(prev =>
             prev.map(p =>
-                p.id === editingUser.id ? { ...p, target: values.target, quarterlyTarget: values.quarterlyTarget } : p
+                p.id === editingUser.id ? { 
+                    ...p, 
+                    target: values.target, 
+                    quarterlyTarget: values.quarterlyTarget,
+                    margin: values.margin,
+                    positivations: newPositivations,
+                    newRegistrations: newNewRegistrations
+                } : p
             )
         );
 
@@ -128,7 +147,7 @@ export default function GoalsPage() {
   }
 
   return (
-    <main className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+    <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <header className="flex items-center gap-4 mb-8">
         <Button asChild variant="outline" size="icon" className="shrink-0">
           <Link href="/">
@@ -170,6 +189,10 @@ export default function GoalsPage() {
                             <TableHead>Vendedor</TableHead>
                             <TableHead className="text-right">Meta Mensal</TableHead>
                             <TableHead className="text-right">Meta Trimestral</TableHead>
+                            <TableHead className="text-right">Margem (%)</TableHead>
+                            <TableHead className="text-right">Positivação</TableHead>
+                            <TableHead className="text-right">Novos Cadastros</TableHead>
+                            <TableHead className="text-right">Inadimplência (%)</TableHead>
                             <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -187,6 +210,10 @@ export default function GoalsPage() {
                                 </TableCell>
                                 <TableCell className="text-right font-mono">{formatCurrency(person.target)}</TableCell>
                                 <TableCell className="text-right font-mono">{formatCurrency(person.quarterlyTarget)}</TableCell>
+                                <TableCell className="text-right font-mono">{person.margin.toFixed(1)}%</TableCell>
+                                <TableCell className="text-right font-mono">{person.positivations.target}</TableCell>
+                                <TableCell className="text-right font-mono">{person.newRegistrations.target}</TableCell>
+                                <TableCell className="text-right font-mono">{person.inadimplencia.toFixed(1)}%</TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="outline" size="icon" onClick={() => handleEditClick(person)}>
                                         <Edit className="h-4 w-4" />
@@ -202,7 +229,7 @@ export default function GoalsPage() {
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Editar Metas de {editingUser?.name}</DialogTitle>
                     <DialogDescription>
@@ -211,32 +238,73 @@ export default function GoalsPage() {
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                        <FormField
-                            control={form.control}
-                            name="target"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Meta Mensal (R$)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" placeholder="Ex: 25000" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="quarterlyTarget"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Meta Trimestral (R$)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" placeholder="Ex: 75000" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="target"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Meta Mensal (R$)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="Ex: 25000" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="quarterlyTarget"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Meta Trimestral (R$)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="Ex: 75000" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="margin"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Margem Média (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.1" placeholder="Ex: 15.5" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="positivationsTarget"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Meta de Positivação</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="Ex: 10" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="newRegistrationsTarget"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Meta Novos Cadastros</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="Ex: 5" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         <DialogFooter>
                             <Button type="button" variant="ghost" onClick={() => setIsEditDialogOpen(false)}>Cancelar</Button>
                             <Button type="submit">Salvar Metas</Button>

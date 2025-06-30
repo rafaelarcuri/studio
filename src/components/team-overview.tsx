@@ -55,6 +55,10 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
   const totalPositivationsAchieved = salesData.reduce((acc, p) => acc + p.positivations.achieved, 0);
   const totalPositivationsTarget = salesData.reduce((acc, p) => acc + p.positivations.target, 0);
 
+  const totalNewRegistrationsAchieved = salesData.reduce((acc, p) => acc + p.newRegistrations.achieved, 0);
+  const totalNewRegistrationsTarget = salesData.reduce((acc, p) => acc + p.newRegistrations.target, 0);
+
+
   let lastMonthTotalSales = 0;
   let previousMonthTotalSales = 0;
 
@@ -107,7 +111,7 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
              <StatCard 
                 icon={UserPlus}
                 title="Novos Cadastros"
-                value="4 / 5"
+                value={`${totalNewRegistrationsAchieved} / ${totalNewRegistrationsTarget}`}
             />
             <StatCard 
                 icon={TrendingUp}
