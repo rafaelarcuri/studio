@@ -7,7 +7,7 @@ import { ChevronLeft } from 'lucide-react';
 import type { SalesPerson } from '@/data/sales';
 import { getSalesPersonById } from '@/data/sales';
 import { IndividualPerformanceCard } from '@/components/individual-performance-card';
-import { SalesTrendChart } from '@/components/charts';
+import { MonthlySalesChart, SalesTrendChart } from '@/components/charts';
 import { Button } from '@/components/ui/button';
 
 
@@ -60,6 +60,7 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                 </div>
                 <div className="lg:col-span-2 space-y-6">
                     <SalesTrendChart salesData={[salesPerson]} />
+                    <MonthlySalesChart salesData={[salesPerson]} />
                 </div>
             </div>
         </div>

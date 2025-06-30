@@ -176,6 +176,11 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
 }
 
 export function MonthlySalesChart({ salesData }: ChartsProps) {
+  const isIndividualView = salesData.length === 1;
+  const description = isIndividualView
+    ? `Análise do seu histórico de vendas.`
+    : "Análise do histórico de vendas da equipe.";
+
   const monthlyTotals: { [month: string]: number } = {}
 
   salesData.forEach(person => {
@@ -225,7 +230,7 @@ export function MonthlySalesChart({ salesData }: ChartsProps) {
     <Card>
       <CardHeader>
         <CardTitle>Vendas nos últimos meses</CardTitle>
-        <CardDescription>Análise do histórico de vendas da equipe.</CardDescription>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
