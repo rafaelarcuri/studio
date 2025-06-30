@@ -23,6 +23,7 @@ export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
     const { target, achieved, margin, positivations, inadimplencia } = salesPerson;
     const remaining = Math.max(0, target - achieved);
     const averageTicket = positivations.achieved > 0 ? achieved / positivations.achieved : 0;
+    const inadimplenciaValor = achieved * (inadimplencia / 100);
 
     const formatCurrency = (value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -60,8 +61,13 @@ export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
             />
              <KpiCard
                 icon={TrendingDown}
-                title="% Inadimplência"
+                title="Inadimplência (%)"
                 value={`${inadimplencia.toFixed(1).replace('.',',')}%`}
+            />
+             <KpiCard
+                icon={TrendingDown}
+                title="Inadimplência (R$)"
+                value={formatCurrency(inadimplenciaValor)}
             />
         </div>
     );

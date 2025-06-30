@@ -50,6 +50,8 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
   const totalInadimplencia = salesData.reduce((acc, p) => acc + p.inadimplencia, 0);
   const averageInadimplencia = salesData.length > 0 ? totalInadimplencia / salesData.length : 0;
   
+  const totalInadimplenciaValor = salesData.reduce((sum, p) => sum + (p.achieved * (p.inadimplencia / 100)), 0);
+
   const totalPositivationsAchieved = salesData.reduce((acc, p) => acc + p.positivations.achieved, 0);
   const totalPositivationsTarget = salesData.reduce((acc, p) => acc + p.positivations.target, 0);
 
@@ -76,6 +78,8 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
     salesComparison.value = 100;
     salesComparison.isPositive = true;
   }
+  
+  const formatCurrency = (value: number) => `R$ ${value.toLocaleString("pt-BR")}`;
 
   return (
       <Card>
@@ -87,12 +91,12 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
             <StatCard 
                 icon={Target}
                 title="Meta Coletiva"
-                value={`R$ ${totalTarget.toLocaleString("pt-BR")}`}
+                value={formatCurrency(totalTarget)}
             />
             <StatCard 
                 icon={DollarSign}
                 title="Total Vendido"
-                value={`R$ ${totalAchieved.toLocaleString("pt-BR")}`}
+                value={formatCurrency(totalAchieved)}
                 comparison={salesComparison}
             />
              <StatCard 
@@ -117,8 +121,13 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
             />
             <StatCard 
                 icon={TrendingDown}
-                title="Inadimplência Média"
+                title="Inadimplência Média (%)"
                 value={`${averageInadimplencia.toFixed(1).replace('.',',')}%`}
+            />
+            <StatCard 
+                icon={TrendingDown}
+                title="Inadimplência Total (R$)"
+                value={formatCurrency(totalInadimplenciaValor)}
             />
           </div>
         </CardContent>
