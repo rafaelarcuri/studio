@@ -2,8 +2,6 @@
 "use client"
 
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { format, parseISO } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -169,105 +167,6 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
                 dot={false}
               />
             </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  )
-}
-
-export function MonthlySalesChart({ salesData }: ChartsProps) {
-  const isIndividualView = salesData.length === 1;
-  const description = isIndividualView
-    ? `Análise do seu histórico de metas e resultados.`
-    : "Análise do histórico de metas e resultados da equipe.";
-
-  const monthlyData: { [month: string]: { realizado: number; meta: number } } = {}
-
-  // Aggregate monthly data
-  salesData.forEach(person => {
-    person.monthlySales?.forEach(sale => {
-      if (monthlyData[sale.month]) {
-        monthlyData[sale.month].realizado += sale.sales
-        monthlyData[sale.month].meta += sale.target
-      } else {
-        monthlyData[sale.month] = {
-          realizado: sale.sales,
-          meta: sale.target,
-        }
-      }
-    })
-  })
-
-  const chartData = Object.entries(monthlyData)
-    .map(([month, data]) => ({
-      month: parseISO(month),
-      ...data,
-    }))
-    .sort((a, b) => a.month.getTime() - b.month.getTime())
-    .slice(-12); // Ensure we only show last 12 months
-
-  const chartConfig: ChartConfig = {
-    realizado: {
-      label: "Realizado",
-      color: "hsl(var(--primary))",
-    },
-    meta: {
-      label: "Meta",
-      color: "hsl(var(--accent))",
-    }
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Meta vs. Realizado (Últimos 12 Meses)</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart 
-              data={chartData}
-              margin={{ top: 20, right: 20, left: -10, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickFormatter={(value) => format(new Date(value), "MMM-yy", { locale: ptBR })}
-                tickLine={false}
-                axisLine={false}
-                fontSize={12}
-              />
-              <YAxis
-                stroke="#888888"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={value => `R$${(value as number / 1000)}k`}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    formatter={(value, name) => [
-                      `R$${(value as number).toLocaleString("pt-BR", {minimumFractionDigits: 0, maximumFractionDigits: 0})}`,
-                      chartConfig[name as keyof typeof chartConfig]?.label,
-                    ]}
-                    labelClassName="font-bold"
-                    indicator="dot"
-                    labelFormatter={(_, payload) => {
-                      const date = payload?.[0]?.payload?.month
-                      if (!date) return null
-                      return format(new Date(date), "MMMM yyyy", { locale: ptBR })
-                    }}
-                  />
-                }
-              />
-              <Legend />
-              <Bar dataKey="meta" fill="var(--color-meta)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="realizado" fill="var(--color-realizado)" radius={[4, 4, 0, 0]} />
-            </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>

@@ -1,7 +1,7 @@
 
 "use client"
 
-import { CheckCircle, DollarSign, Percent, Receipt, Target, TrendingUp, Users } from "lucide-react"
+import { CheckCircle, DollarSign, TrendingUp, Target } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,10 +9,11 @@ import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ProgressThermometer } from "./progress-thermometer"
+import { Progress } from "@/components/ui/progress"
 
 interface IndividualPerformanceCardProps {
   salesPerson: SalesPerson
@@ -21,11 +22,10 @@ interface IndividualPerformanceCardProps {
 export function IndividualPerformanceCard({
   salesPerson,
 }: IndividualPerformanceCardProps) {
-  const { name, avatar, target, achieved, margin, positivations } = salesPerson
+  const { name, avatar, target, achieved } = salesPerson
   const progress = target > 0 ? (achieved / target) * 100 : 100
   const remaining = Math.max(0, target - achieved)
   const hasMetTarget = achieved >= target
-  const averageTicket = positivations.achieved > 0 ? achieved / positivations.achieved : 0;
 
   return (
     <Card
@@ -52,44 +52,33 @@ export function IndividualPerformanceCard({
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <ProgressThermometer value={progress} />
-        <div className="grid grid-cols-3 gap-4 text-center text-sm">
-          <div className="space-y-1 rounded-md border p-2">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+      <CardContent className="space-y-4">
+        <div>
+          <div className="mb-1 flex justify-between text-sm font-medium">
+            <span>Progresso</span>
+            <span className={hasMetTarget ? "text-primary" : ""}>{progress.toFixed(1)}%</span>
+          </div>
+          <Progress value={progress} aria-label={`${progress.toFixed(1)}% da meta atingido`} />
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+          <div className="space-y-1">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground">
               <Target className="h-4 w-4" /> Meta
             </p>
-            <p className="font-semibold">R$ {target.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="font-semibold">R$ {target.toLocaleString("pt-BR")}</p>
           </div>
-          <div className="space-y-1 rounded-md border p-2">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+          <div className="space-y-1">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground">
               <DollarSign className="h-4 w-4" /> Vendido
             </p>
-            <p className="font-semibold">R$ {achieved.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="font-semibold">R$ {achieved.toLocaleString("pt-BR")}</p>
           </div>
-          <div className="space-y-1 rounded-md border p-2">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+          <div className="space-y-1">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground">
               <TrendingUp className="h-4 w-4" /> Restante
             </p>
-            <p className="font-semibold">R$ {remaining.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-          </div>
-           <div className="space-y-1 rounded-md border p-2">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
-              <Percent className="h-4 w-4" /> Margem
-            </p>
-            <p className="font-semibold">{margin.toFixed(1)}%</p>
-          </div>
-          <div className="space-y-1 rounded-md border p-2">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
-              <Users className="h-4 w-4" /> Positivação
-            </p>
-            <p className="font-semibold">{`${positivations.achieved} / ${positivations.target}`}</p>
-          </div>
-          <div className="space-y-1 rounded-md border p-2">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
-              <Receipt className="h-4 w-4" /> Ticket Médio
-            </p>
-            <p className="font-semibold">R$ {averageTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="font-semibold">R$ {remaining.toLocaleString("pt-BR")}</p>
           </div>
         </div>
       </CardContent>
