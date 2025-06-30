@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -10,6 +11,7 @@ import { IndividualPerformanceCard } from '@/components/individual-performance-c
 import { MonthlySalesChart, SalesTrendChart } from '@/components/charts';
 import { Button } from '@/components/ui/button';
 import { GoalAchievementCard } from "@/components/goal-achievement-card";
+import { SalespersonCustomerList } from "@/components/salesperson-customer-list";
 
 
 interface IndividualDashboardProps {
@@ -59,6 +61,7 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                         salesPerson={salesPerson}
                     />
                     <GoalAchievementCard salesPerson={salesPerson} />
+                    <SalespersonCustomerList salespersonId={salespersonId} />
                 </div>
                 <div className="lg:col-span-2 space-y-6">
                     <SalesTrendChart salesData={[salesPerson]} />
