@@ -1,4 +1,4 @@
-import { DollarSign, Percent, Target } from "lucide-react"
+import { DollarSign, Percent, Target, UserPlus } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { SalesTrendChart, TeamContributionChart, MonthlySalesChart } from "@/components/charts"
@@ -14,6 +14,8 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
   const totalTarget = globalTarget ?? individualTotalTarget
   const totalAchieved = salesData.reduce((acc, p) => acc + p.achieved, 0)
   const progress = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0
+  const newRegistrationsTarget = 5;
+  const newRegistrationsAchieved = salesData.length;
 
   return (
     <div className="space-y-6">
@@ -22,7 +24,7 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
           <CardTitle>Resumo da Equipe</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 text-center sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-4">
             <div className="rounded-lg border bg-card p-4">
               <Target className="mx-auto mb-2 h-8 w-8 text-accent" />
               <p className="text-sm text-muted-foreground">Meta Coletiva</p>
@@ -37,6 +39,11 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
               <Percent className="mx-auto mb-2 h-8 w-8 text-accent" />
               <p className="text-sm text-muted-foreground">Progresso</p>
               <p className="text-2xl font-bold">{progress.toFixed(1)}%</p>
+            </div>
+             <div className="rounded-lg border bg-card p-4">
+              <UserPlus className="mx-auto mb-2 h-8 w-8 text-accent" />
+              <p className="text-sm text-muted-foreground">Novos Cadastros</p>
+              <p className="text-2xl font-bold">{`${newRegistrationsAchieved} / ${newRegistrationsTarget}`}</p>
             </div>
           </div>
         </CardContent>
