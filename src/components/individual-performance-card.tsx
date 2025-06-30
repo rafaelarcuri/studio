@@ -1,7 +1,6 @@
-
 "use client"
 
-import { CheckCircle, DollarSign, TrendingUp, Target } from "lucide-react"
+import { CheckCircle, DollarSign, TrendingDown, TrendingUp, Target } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -22,7 +21,7 @@ interface IndividualPerformanceCardProps {
 export function IndividualPerformanceCard({
   salesPerson,
 }: IndividualPerformanceCardProps) {
-  const { name, avatar, target, achieved } = salesPerson
+  const { name, avatar, target, achieved, inadimplencia } = salesPerson
   const progress = target > 0 ? (achieved / target) * 100 : 100
   const remaining = Math.max(0, target - achieved)
   const hasMetTarget = achieved >= target
@@ -61,7 +60,7 @@ export function IndividualPerformanceCard({
           <Progress value={progress} aria-label={`${progress.toFixed(1)}% da meta atingido`} />
         </div>
 
-        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+        <div className="grid grid-cols-4 gap-2 text-center text-xs">
           <div className="space-y-1">
             <p className="flex items-center justify-center gap-1 text-muted-foreground">
               <Target className="h-4 w-4" /> Meta
@@ -79,6 +78,12 @@ export function IndividualPerformanceCard({
               <TrendingUp className="h-4 w-4" /> Restante
             </p>
             <p className="font-semibold">R$ {remaining.toLocaleString("pt-BR")}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground">
+              <TrendingDown className="h-4 w-4" /> Inadimp.
+            </p>
+            <p className="font-semibold">{inadimplencia.toFixed(1).replace('.',',')}%</p>
           </div>
         </div>
       </CardContent>
