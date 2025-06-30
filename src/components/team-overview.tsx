@@ -1,5 +1,5 @@
 
-import { DollarSign, Percent, Target, TrendingUp, UserPlus, Users } from "lucide-react"
+import { DollarSign, Percent, Target, TrendingUp, UserPlus, Users, ArrowUp, ArrowDown } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,11 +9,31 @@ interface TeamOverviewProps {
   globalTarget?: number
 }
 
-const StatCard = ({ icon: Icon, title, value }: { icon: React.ElementType, title: string, value: React.ReactNode }) => (
-    <div className="rounded-lg border bg-card p-4 flex flex-col items-center justify-center text-center min-h-[120px]">
+const StatCard = ({ icon: Icon, title, value, comparison }: { 
+    icon: React.ElementType, 
+    title: string, 
+    value: React.ReactNode,
+    comparison?: { value: number; isPositive: boolean; } 
+}) => (
+    <div className="rounded-lg border bg-card p-4 flex flex-col items-center justify-center text-center min-h-[140px]">
         <Icon className="mb-2 h-7 w-7 text-accent" />
         <p className="text-sm text-muted-foreground">{title}</p>
         <p className="text-2xl font-bold">{value}</p>
+
+        {comparison ? (
+            <div className="flex items-center gap-1 mt-1 text-xs">
+                {comparison.isPositive ? (
+                    <ArrowUp className="h-3 w-3 text-green-500" />
+                ) : (
+                    <ArrowDown className="h-3 w-3 text-red-500" />
+                )}
+                <span className={`${comparison.isPositive ? 'text-green-600' : 'text-red-600'} font-medium`}>
+                    {comparison.value.toFixed(0)}% vs. mês anterior
+                </span>
+            </div>
+        ) : (
+            <div className="mt-1 h-[18px]" />
+        )}
     </div>
 )
 
@@ -30,6 +50,29 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
   const totalPositivationsAchieved = salesData.reduce((acc, p) => acc + p.positivations.achieved, 0);
   const totalPositivationsTarget = salesData.reduce((acc, p) => acc + p.positivations.target, 0);
 
+  let lastMonthTotalSales = 0;
+  let previousMonthTotalSales = 0;
+
+  salesData.forEach(person => {
+    if (person.monthlySales && person.monthlySales.length >= 2) {
+      lastMonthTotalSales += person.monthlySales[person.monthlySales.length - 1].sales;
+      previousMonthTotalSales += person.monthlySales[person.monthlySales.length - 2].sales;
+    }
+  });
+  
+  const salesComparison = {
+    value: 0,
+    isPositive: true,
+  };
+
+  if (previousMonthTotalSales > 0) {
+    const diff = ((lastMonthTotalSales - previousMonthTotalSales) / previousMonthTotalSales) * 100;
+    salesComparison.value = Math.abs(diff);
+    salesComparison.isPositive = diff >= 0;
+  } else if (lastMonthTotalSales > 0) {
+    salesComparison.value = 100;
+    salesComparison.isPositive = true;
+  }
 
   return (
       <Card>
@@ -47,6 +90,7 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
                 icon={DollarSign}
                 title="Total Vendido"
                 value={`R$ ${totalAchieved.toLocaleString("pt-BR")}`}
+                comparison={salesComparison}
             />
              <StatCard 
                 icon={Percent}
