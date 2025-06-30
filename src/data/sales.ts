@@ -26,7 +26,9 @@ const generateSalesHistory = (): SalesHistory[] => {
   }))
 }
 
-const initialSalesData: SalesPerson[] = [
+// In a real app, this would be a database.
+// For this prototype, we're using an in-memory array.
+let initialSalesData: SalesPerson[] = [
   { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, achieved: 18500, salesHistory: generateSalesHistory() },
   { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, achieved: 21000, salesHistory: generateSalesHistory() },
   { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, achieved: 15000, salesHistory: generateSalesHistory() },
@@ -50,3 +52,17 @@ export const getSalesData = (): SalesPerson[] => {
 export const getSalesPersonById = (id: number): SalesPerson | undefined => {
     return getSalesData().find((p: SalesPerson) => p.id === id);
 }
+
+export const addSalesPerson = (newPersonData: { name: string; target: number }) => {
+    const newId = initialSalesData.length > 0 ? Math.max(...initialSalesData.map(p => p.id)) + 1 : 1;
+    const newPerson: SalesPerson = {
+        id: newId,
+        name: newPersonData.name,
+        avatar: `https://placehold.co/100x100.png`,
+        target: newPersonData.target,
+        achieved: 0,
+        // New employees start with no sales history
+        salesHistory: Array.from({ length: 30 }, (_, i) => ({ day: i + 1, sales: 0 })),
+    }
+    initialSalesData.push(newPerson);
+};

@@ -75,9 +75,11 @@ export default function SalesDashboard() {
                     Definir Meta Global
                 </Button>
             </GoalSetter>
-            <Button disabled>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Adicionar Vendedor
+            <Button asChild>
+              <Link href="/sales/new">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Vendedor
+              </Link>
             </Button>
         </div>
       </header>
