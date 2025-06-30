@@ -4,6 +4,11 @@ export type SalesHistory = {
   sales: number
 }
 
+export type MonthlySale = {
+  month: string // "YYYY-MM-DD"
+  sales: number
+}
+
 export type SalesPerson = {
   id: number
   name: string
@@ -11,6 +16,7 @@ export type SalesPerson = {
   target: number
   achieved: number
   salesHistory: SalesHistory[]
+  monthlySales: MonthlySale[]
 }
 
 const generateSalesHistory = (): SalesHistory[] => {
@@ -26,13 +32,32 @@ const generateSalesHistory = (): SalesHistory[] => {
   }))
 }
 
+const generateMonthlySalesHistory = (seed_offset = 0): MonthlySale[] => {
+    let seed = 1 + seed_offset;
+    const random = () => {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
+    const sales: MonthlySale[] = [];
+    const today = new Date();
+    for (let i = 11; i >= 0; i--) {
+        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        sales.push({
+            month: date.toISOString().slice(0, 7) + '-01',
+            sales: Math.floor(random() * (180000 - 50000) + 50000) / 4,
+        });
+    }
+    return sales;
+}
+
+
 // In a real app, this would be a database.
 // For this prototype, we're using an in-memory array.
 let initialSalesData: SalesPerson[] = [
-  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, achieved: 18500, salesHistory: generateSalesHistory() },
-  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, achieved: 21000, salesHistory: generateSalesHistory() },
-  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, achieved: 15000, salesHistory: generateSalesHistory() },
-  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, achieved: 22500, salesHistory: generateSalesHistory() },
+  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, achieved: 18500, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(1) },
+  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, achieved: 21000, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(2) },
+  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, achieved: 15000, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(3) },
+  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, achieved: 22500, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(4) },
 ]
 
 // Update initial achieved amount from history
@@ -63,6 +88,11 @@ export const addSalesPerson = (newPersonData: { name: string; target: number }) 
         achieved: 0,
         // New employees start with no sales history
         salesHistory: Array.from({ length: 30 }, (_, i) => ({ day: i + 1, sales: 0 })),
+        monthlySales: Array.from({ length: 12 }, (_, i) => {
+            const today = new Date();
+            const date = new Date(today.getFullYear(), today.getMonth() - (11 - i), 1);
+            return { month: date.toISOString().slice(0, 7) + '-01', sales: 0 };
+        }),
     }
     initialSalesData.push(newPerson);
 };

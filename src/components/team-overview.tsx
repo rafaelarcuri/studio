@@ -1,7 +1,7 @@
 import { DollarSign, Percent, Target } from "lucide-react"
 
-import type { SalesPerson } from "@/components/sales-dashboard"
-import { SalesTrendChart, TeamContributionChart } from "@/components/charts"
+import type { SalesPerson } from "@/data/sales"
+import { SalesTrendChart, TeamContributionChart, MonthlySalesChart } from "@/components/charts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface TeamOverviewProps {
@@ -43,6 +43,7 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
       </Card>
       <TeamContributionChart salesData={salesData} />
       <SalesTrendChart salesData={salesData} />
+      <MonthlySalesChart salesData={salesData} />
     </div>
   )
 }
