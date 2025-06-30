@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { CheckCircle, DollarSign, Plus, Target, TrendingUp } from "lucide-react"
 
-import type { SalesPerson } from "@/components/sales-dashboard"
+import type { SalesPerson } from "@/data/sales"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,7 @@ export function IndividualPerformanceCard({
 
   const handleAddSale = (e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation() // Prevent link navigation when clicking form
     const saleAmount = parseFloat(amount)
     if (!isNaN(saleAmount) && saleAmount > 0) {
       onAddSale(id, saleAmount)
@@ -99,6 +100,7 @@ export function IndividualPerformanceCard({
             placeholder="Adicionar venda..."
             value={amount}
             onChange={e => setAmount(e.target.value)}
+            onClick={(e) => e.stopPropagation()} // Prevent link navigation
             className="h-9"
             aria-label="Valor da nova venda"
           />

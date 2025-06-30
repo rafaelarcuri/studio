@@ -9,7 +9,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import type { SalesPerson } from "@/components/sales-dashboard"
+import type { SalesPerson } from "@/data/sales"
 
 interface ChartsProps {
   salesData: SalesPerson[]
@@ -76,6 +76,7 @@ export function TeamContributionChart({ salesData }: ChartsProps) {
 }
 
 export function SalesTrendChart({ salesData }: ChartsProps) {
+  const isIndividualView = salesData.length === 1;
   const trendData: any[] = Array.from({ length: 30 }, (_, i) => ({ day: i + 1, total: 0 }))
 
   const cumulativeSales: { [key: string]: number } = {}
@@ -104,7 +105,7 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
 
   const chartConfig: ChartConfig = {
     total: {
-      label: "Equipe",
+      label: isIndividualView ? salesData[0].name : "Equipe",
       color: "hsl(var(--primary))",
     },
     ...dynamicChartConfig,
@@ -146,8 +147,8 @@ export function SalesTrendChart({ salesData }: ChartsProps) {
                   />
                 }
               />
-              <Legend />
-              {salesData.map((person, index) => (
+              {!isIndividualView && <Legend />}
+              {!isIndividualView && salesData.map((person) => (
                 <Line
                   key={person.id}
                   type="monotone"

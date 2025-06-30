@@ -1,51 +1,20 @@
 "use client"
 
 import { useState } from "react"
+import Link from 'next/link'
 import { PlusCircle, Target } from "lucide-react"
 
+import type { SalesPerson } from "@/data/sales"
+import { getSalesData } from "@/data/sales"
 import { useToast } from "@/hooks/use-toast"
 import { GoalSetter } from "@/components/goal-setter"
 import { IndividualPerformanceCard } from "@/components/individual-performance-card"
 import { TeamOverview } from "@/components/team-overview"
 import { Button } from "@/components/ui/button"
 
-export type SalesHistory = {
-  day: number
-  sales: number
-}
-
-export type SalesPerson = {
-  id: number
-  name: string
-  avatar: string
-  target: number
-  achieved: number
-  salesHistory: SalesHistory[]
-}
-
-const generateSalesHistory = (): SalesHistory[] => {
-  return Array.from({ length: 30 }, (_, i) => ({
-    day: i + 1,
-    sales: Math.random() * (1200 - 100) + 100,
-  }))
-}
-
-const initialSalesData: SalesPerson[] = [
-  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", "data-ai-hint": "woman portrait", target: 25000, achieved: 18500, salesHistory: generateSalesHistory() },
-  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", "data-ai-hint": "man portrait", target: 20000, achieved: 21000, salesHistory: generateSalesHistory() },
-  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", "data-ai-hint": "woman portrait", target: 30000, achieved: 15000, salesHistory: generateSalesHistory() },
-  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", "data-ai-hint": "man portrait", target: 22000, achieved: 22500, salesHistory: generateSalesHistory() },
-]
-
-// Update initial achieved amount from history
-initialSalesData.forEach(person => {
-    const today = new Date().getDate();
-    person.achieved = person.salesHistory.filter(h => h.day <= today).reduce((sum, h) => sum + h.sales, 0);
-});
-
 
 export default function SalesDashboard() {
-  const [salesData, setSalesData] = useState<SalesPerson[]>(initialSalesData)
+  const [salesData, setSalesData] = useState<SalesPerson[]>(getSalesData)
   const [globalTarget, setGlobalTarget] = useState<number | undefined>(100000);
   const { toast } = useToast()
 
@@ -120,11 +89,12 @@ export default function SalesDashboard() {
             {salesData
               .sort((a, b) => b.achieved - a.achieved)
               .map(person => (
-                <IndividualPerformanceCard
-                  key={person.id}
-                  salesPerson={person}
-                  onAddSale={handleAddSale}
-                />
+                <Link key={person.id} href={`/sales/${person.id}`} className="no-underline text-current outline-none focus:ring-2 focus:ring-ring rounded-lg">
+                  <IndividualPerformanceCard
+                    salesPerson={person}
+                    onAddSale={handleAddSale}
+                  />
+                </Link>
               ))}
           </div>
         </div>
