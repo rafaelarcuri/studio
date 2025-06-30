@@ -14,42 +14,9 @@ import { Button } from "@/components/ui/button"
 
 
 export default function SalesDashboard() {
-  const [salesData, setSalesData] = useState<SalesPerson[]>(getSalesData)
+  const [salesData] = useState<SalesPerson[]>(getSalesData)
   const [globalTarget, setGlobalTarget] = useState<number | undefined>(100000);
   const { toast } = useToast()
-
-  const handleAddSale = (id: number, amount: number) => {
-    setSalesData(prevData =>
-      prevData.map(person => {
-        if (person.id === id) {
-          const newAchieved = person.achieved + amount
-          const hasMetTargetNow = newAchieved >= person.target
-          const hadMetTargetBefore = person.achieved >= person.target
-
-          if (hasMetTargetNow && !hadMetTargetBefore) {
-            toast({
-              title: "Meta Atingida! 🎉",
-              description: `${person.name} alcançou a meta de vendas!`,
-              variant: "default",
-              duration: 5000,
-            })
-          }
-
-          const today = new Date().getDate()
-          const newHistory = [...person.salesHistory]
-          const todayIndex = newHistory.findIndex(h => h.day === today)
-          if (todayIndex !== -1) {
-            newHistory[todayIndex].sales += amount
-          } else {
-            newHistory.push({ day: today, sales: amount })
-          }
-
-          return { ...person, achieved: newAchieved, salesHistory: newHistory }
-        }
-        return person
-      })
-    )
-  }
 
   const handleSetGlobalTarget = (target: number) => {
     setGlobalTarget(target);
@@ -94,7 +61,6 @@ export default function SalesDashboard() {
                 <Link key={person.id} href={`/sales/${person.id}`} className="no-underline text-current outline-none focus:ring-2 focus:ring-ring rounded-lg">
                   <IndividualPerformanceCard
                     salesPerson={person}
-                    onAddSale={handleAddSale}
                   />
                 </Link>
               ))}

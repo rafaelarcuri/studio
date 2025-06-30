@@ -9,7 +9,6 @@ import { getSalesPersonById } from '@/data/sales';
 import { IndividualPerformanceCard } from '@/components/individual-performance-card';
 import { SalesTrendChart } from '@/components/charts';
 import { Button } from '@/components/ui/button';
-import { useToast } from "@/hooks/use-toast";
 
 
 interface IndividualDashboardProps {
@@ -17,45 +16,13 @@ interface IndividualDashboardProps {
 }
 
 export default function IndividualDashboard({ salespersonId }: IndividualDashboardProps) {
-    const { toast } = useToast();
-    // NOTE: This is a simplified state management for prototype purposes.
-    // In a real app, you would use a global state manager (like Context, Redux, Zustand)
-    // or fetch data directly to ensure consistency.
+    // Data is now fetched and considered read-only for this view.
     const [salesPerson, setSalesPerson] = useState<SalesPerson | undefined>(() => getSalesPersonById(salespersonId));
     
     useEffect(() => {
         // This effect ensures that if the ID changes, we get the new data.
-        // It also simulates fetching data on component mount.
         setSalesPerson(getSalesPersonById(salespersonId));
     }, [salespersonId]);
-
-    const handleAddSale = (id: number, amount: number) => {
-        setSalesPerson(prevPerson => {
-            if (!prevPerson || prevPerson.id !== id) return prevPerson;
-            
-            const newAchieved = prevPerson.achieved + amount;
-            const hasMetTargetNow = newAchieved >= prevPerson.target;
-            const hadMetTargetBefore = prevPerson.achieved >= prevPerson.target;
-
-            if (hasMetTargetNow && !hadMetTargetBefore) {
-                toast({
-                  title: "Meta Atingida! 🎉",
-                  description: `${prevPerson.name} alcançou a meta de vendas!`,
-                });
-            }
-            
-            const today = new Date().getDate();
-            const newHistory = [...prevPerson.salesHistory];
-            const todayIndex = newHistory.findIndex(h => h.day === today);
-            if (todayIndex !== -1) {
-                newHistory[todayIndex].sales += amount;
-            } else {
-                newHistory.push({ day: today, sales: amount });
-            }
-
-            return { ...prevPerson, achieved: newAchieved, salesHistory: newHistory };
-        });
-    }
 
     if (!salesPerson) {
         return (
@@ -89,7 +56,6 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                 <div className="lg:col-span-1">
                      <IndividualPerformanceCard 
                         salesPerson={salesPerson}
-                        onAddSale={handleAddSale}
                     />
                 </div>
                 <div className="lg:col-span-2 space-y-6">
