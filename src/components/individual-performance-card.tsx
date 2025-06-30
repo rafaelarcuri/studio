@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { CheckCircle, DollarSign, Percent, Plus, Target, TrendingUp } from "lucide-react"
+import { CheckCircle, DollarSign, Percent, Plus, Target, TrendingUp, Users } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -27,7 +27,7 @@ export function IndividualPerformanceCard({
   onAddSale,
 }: IndividualPerformanceCardProps) {
   const [amount, setAmount] = useState("")
-  const { id, name, avatar, target, achieved, margin } = salesPerson
+  const { id, name, avatar, target, achieved, margin, positivations } = salesPerson
   const progress = target > 0 ? (achieved / target) * 100 : 100
   const remaining = Math.max(0, target - achieved)
   const hasMetTarget = achieved >= target
@@ -99,6 +99,12 @@ export function IndividualPerformanceCard({
               <Percent className="h-4 w-4" /> Margem
             </p>
             <p className="font-semibold">{margin.toFixed(1)}%</p>
+          </div>
+          <div className="space-y-1 rounded-md border p-2">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+              <Users className="h-4 w-4" /> Positivação
+            </p>
+            <p className="font-semibold">{`${positivations.achieved} / ${positivations.target}`}</p>
           </div>
         </div>
         <form onSubmit={handleAddSale} className="flex items-center gap-2 pt-2">

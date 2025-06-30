@@ -30,6 +30,9 @@ const formSchema = z.object({
   margin: z.coerce.number().positive({
     message: "A margem deve ser um número positivo.",
   }),
+  positivationsTarget: z.coerce.number().int().positive({
+    message: "A meta de positivação deve ser um número inteiro positivo.",
+  }),
 })
 
 export default function NewSalespersonForm() {
@@ -42,6 +45,7 @@ export default function NewSalespersonForm() {
             name: "",
             target: 0,
             margin: 0,
+            positivationsTarget: 0,
         },
     })
 
@@ -96,6 +100,19 @@ export default function NewSalespersonForm() {
                                     <FormLabel>Margem Média (%)</FormLabel>
                                     <FormControl>
                                         <Input type="number" step="0.1" placeholder="Ex: 15.5" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="positivationsTarget"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Meta de Positivação (Clientes)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="Ex: 10" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
