@@ -21,10 +21,10 @@ import { PieChart, ListFilter, Calendar } from 'lucide-react';
 import type { Task, Status } from '@/data/tasks';
 import { initialTasks } from '@/data/tasks';
 import { users } from '@/data/users';
-import { KanbanColumn } from './kanban-column';
-import { KanbanCard } from './kanban-card';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { KanbanColumn } from '@/components/kanban-column';
+import { KanbanCard } from '@/components/kanban-card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const initialColumns: { id: Status; title: string }[] = [
   { id: 'pendente', title: 'Pendentes' },
@@ -100,7 +100,7 @@ export default function KanbanBoard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Em Andamento</CardTitle>
-                    </Header>
+                    </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{getTasksByStatus('em_andamento').length}</div>
                     </CardContent>
@@ -108,7 +108,7 @@ export default function KanbanBoard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Concluídas</CardTitle>
-                    </Header>
+                    </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{getTasksByStatus('concluida').length}</div>
                     </CardContent>
