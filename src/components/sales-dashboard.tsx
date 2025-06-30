@@ -4,7 +4,7 @@
 import { useState } from "react"
 import Link from 'next/link'
 import { useRouter } from "next/navigation"
-import { PlusCircle, Target, LogOut } from "lucide-react"
+import { PlusCircle, Target, LogOut, Trophy, ClipboardList } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { getSalesData } from "@/data/sales"
@@ -46,6 +46,18 @@ export default function SalesDashboard() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+            <Button asChild>
+                <Link href="/ranking">
+                    <Trophy className="mr-2 h-4 w-4" />
+                    Ranking de Clientes
+                </Link>
+            </Button>
+            <Button asChild>
+                <Link href="/goals">
+                    <ClipboardList className="mr-2 h-4 w-4" />
+                    Gestão de Metas
+                </Link>
+            </Button>
             <GoalSetter onSetTarget={handleSetGlobalTarget}>
                 <Button variant="outline">
                     <Target className="mr-2 h-4 w-4" />
