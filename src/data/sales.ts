@@ -87,7 +87,7 @@ export const getSalesPersonById = (id: number): SalesPerson | undefined => {
     return getSalesData().find((p: SalesPerson) => p.id === id);
 }
 
-export const addSalesPerson = (newPersonData: { name: string; target: number; margin: number; positivationsTarget: number; }) => {
+export const addSalesPerson = (newPersonData: { name: string; target: number; margin: number; positivationsTarget: number; }): number => {
     const newId = initialSalesData.length > 0 ? Math.max(...initialSalesData.map(p => p.id)) + 1 : 1;
     const newPerson: SalesPerson = {
         id: newId,
@@ -109,4 +109,5 @@ export const addSalesPerson = (newPersonData: { name: string; target: number; ma
         }),
     }
     initialSalesData.push(newPerson);
+    return newId;
 };

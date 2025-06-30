@@ -60,3 +60,12 @@ export const users: User[] = [
     salesPersonId: 4,
   },
 ];
+
+export const addUser = (newUser: User) => {
+    const existingUser = users.find(u => u.email.toLowerCase() === newUser.email.toLowerCase());
+    if (existingUser) {
+        console.error("User with this email already exists.");
+        return;
+    }
+    users.push(newUser);
+};

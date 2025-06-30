@@ -42,9 +42,9 @@ export default function NewSalespersonPage() {
                     </Link>
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold">Adicionar Novo Vendedor</h1>
+                    <h1 className="text-3xl font-bold">Cadastrar Novo Usuário</h1>
                     <p className="text-muted-foreground">
-                        Preencha os dados para cadastrar um novo membro na equipe.
+                        Preencha os dados para cadastrar um novo usuário e associar permissões.
                     </p>
                 </div>
             </header>
