@@ -9,10 +9,10 @@ import { ChevronLeft, LogOut } from 'lucide-react';
 import type { SalesPerson } from '@/data/sales';
 import { getSalesPersonById } from '@/data/sales';
 import { useAuth } from "@/hooks/use-auth";
-import { IndividualPerformanceCard } from '@/components/individual-performance-card';
 import { MonthlyPerformanceChart, SalesTrendChart } from '@/components/charts';
 import { Button } from '@/components/ui/button';
 import { SalespersonCustomerList } from "./salesperson-customer-list";
+import { GoalAchievementCard } from "./goal-achievement-card";
 
 interface IndividualDashboardProps {
     salespersonId: number;
@@ -70,10 +70,8 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-1 space-y-6">
-                     <IndividualPerformanceCard 
-                        salesPerson={salesPerson}
-                    />
-                    <SalespersonCustomerList salespersonId={salespersonId} />
+                     <GoalAchievementCard salesPerson={salesPerson} />
+                     <SalespersonCustomerList salespersonId={salespersonId} />
                 </div>
                 <div className="lg:col-span-2 space-y-6">
                     <MonthlyPerformanceChart salesPerson={salesPerson} />
