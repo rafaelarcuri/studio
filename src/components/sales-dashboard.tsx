@@ -21,7 +21,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -70,10 +74,22 @@ export default function SalesDashboard() {
                   <Trophy className="mr-2 h-4 w-4" />
                   <span>Ranking de Clientes</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/goals')}>
-                  <ClipboardList className="mr-2 h-4 w-4" />
-                  <span>Gestão de Metas</span>
-                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <ClipboardList className="mr-2 h-4 w-4" />
+                    <span>Gestão de Metas</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onSelect={() => router.push('/goals')}>
+                        Visão Geral
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => router.push('/goals/upload')}>
+                        Upload em Massa
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
                 <DropdownMenuItem onSelect={() => router.push('/users')}>
                   <Users className="mr-2 h-4 w-4" />
                   <span>Gestão de Usuários</span>
