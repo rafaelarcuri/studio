@@ -81,11 +81,14 @@ export default function SalesDashboard() {
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
-                      <DropdownMenuItem onSelect={() => router.push('/goals')}>
-                        Visão Geral
+                       <DropdownMenuItem onSelect={() => router.push('/goals/upload')}>
+                        Cadastro e Edição em Massa
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => router.push('/goals/upload')}>
-                        Upload em Massa
+                      <DropdownMenuItem onSelect={() => router.push('/goals')}>
+                        Alteração de Metas
+                      </DropdownMenuItem>
+                       <DropdownMenuItem onSelect={() => router.push('/goals')}>
+                        Histórico de Metas
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
