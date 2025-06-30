@@ -25,7 +25,7 @@ export function TeamContributionChart({ salesData }: ChartsProps) {
   const chartConfig: ChartConfig = {
     vendas: {
       label: "Vendas",
-      color: "hsl(var(--accent))",
+      color: "hsl(var(--foreground))",
     },
   }
 
@@ -67,7 +67,7 @@ export function TeamContributionChart({ salesData }: ChartsProps) {
                   />
                 }
               />
-              <Bar dataKey="vendas" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="vendas" fill="hsl(var(--foreground))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
