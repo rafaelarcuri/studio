@@ -4,7 +4,7 @@
 import { useState } from "react"
 import Link from 'next/link'
 import { useRouter } from "next/navigation"
-import { PlusCircle, Target, LogOut, Trophy, ClipboardList } from "lucide-react"
+import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { getSalesData } from "@/data/sales"
@@ -58,6 +58,12 @@ export default function SalesDashboard() {
                     Gestão de Metas
                 </Link>
             </Button>
+             <Button asChild>
+                <Link href="/users">
+                    <Users className="mr-2 h-4 w-4" />
+                    Gestão de Usuários
+                </Link>
+            </Button>
             <GoalSetter onSetTarget={handleSetGlobalTarget}>
                 <Button variant="outline">
                     <Target className="mr-2 h-4 w-4" />
@@ -67,7 +73,7 @@ export default function SalesDashboard() {
             <Button asChild>
               <Link href="/sales/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Adicionar Vendedor
+                Adicionar Usuário
               </Link>
             </Button>
             <Button variant="outline" onClick={handleLogout}>

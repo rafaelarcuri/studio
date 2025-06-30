@@ -34,9 +34,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (storedUser) {
         const parsedUser: User = JSON.parse(storedUser);
         // Re-validate the user against our "database"
-        const userExists = users.some(u => u.id === parsedUser.id);
+        const userExists = users.some(u => u.id === parsedUser.id && u.status === 'ativo');
         if (userExists) {
-            setUser(parsedUser);
+            // Refresh user data from our "source of truth" in case it was updated
+            const freshUser = users.find(u => u.id === parsedUser.id)!;
+            const userToStore = { ...freshUser };
+            // @ts-ignore
+            delete userToStore.password;
+            setUser(userToStore);
+        } else {
+            // User might be disabled or deleted, so clear storage
+             localStorage.removeItem('vendas-agil-user');
         }
       }
     } catch (error) {
@@ -50,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (email: string, password: string): boolean => {
     const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
 
-    if (foundUser) {
+    if (foundUser && foundUser.status === 'ativo') {
       const userToStore = { ...foundUser };
       // In a real app, NEVER store the password, even in a mock.
       // @ts-ignore
