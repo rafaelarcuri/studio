@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useForm } from "react-hook-form"
@@ -26,6 +27,9 @@ const formSchema = z.object({
   target: z.coerce.number().positive({
     message: "A meta deve ser um número positivo.",
   }),
+  margin: z.coerce.number().positive({
+    message: "A margem deve ser um número positivo.",
+  }),
 })
 
 export default function NewSalespersonForm() {
@@ -37,6 +41,7 @@ export default function NewSalespersonForm() {
         defaultValues: {
             name: "",
             target: 0,
+            margin: 0,
         },
     })
 
@@ -78,6 +83,19 @@ export default function NewSalespersonForm() {
                                     <FormLabel>Meta de Vendas (R$)</FormLabel>
                                     <FormControl>
                                         <Input type="number" placeholder="Ex: 25000" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="margin"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Margem Média (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.1" placeholder="Ex: 15.5" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

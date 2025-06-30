@@ -1,7 +1,8 @@
+
 "use client"
 
 import { useState } from "react"
-import { CheckCircle, DollarSign, Plus, Target, TrendingUp } from "lucide-react"
+import { CheckCircle, DollarSign, Percent, Plus, Target, TrendingUp } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -26,7 +27,7 @@ export function IndividualPerformanceCard({
   onAddSale,
 }: IndividualPerformanceCardProps) {
   const [amount, setAmount] = useState("")
-  const { id, name, avatar, target, achieved } = salesPerson
+  const { id, name, avatar, target, achieved, margin } = salesPerson
   const progress = target > 0 ? (achieved / target) * 100 : 100
   const remaining = Math.max(0, target - achieved)
   const hasMetTarget = achieved >= target
@@ -74,24 +75,30 @@ export function IndividualPerformanceCard({
           </div>
           <Progress value={progress} className="h-3 [&>div]:bg-primary" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} />
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center text-sm">
-          <div className="space-y-1">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground">
+        <div className="grid grid-cols-2 gap-4 text-center text-sm">
+          <div className="space-y-1 rounded-md border p-2">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
               <Target className="h-4 w-4" /> Meta
             </p>
             <p className="font-semibold">R$ {target.toLocaleString("pt-BR")}</p>
           </div>
-          <div className="space-y-1">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground">
+          <div className="space-y-1 rounded-md border p-2">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
               <DollarSign className="h-4 w-4" /> Vendido
             </p>
             <p className="font-semibold">R$ {achieved.toLocaleString("pt-BR")}</p>
           </div>
-          <div className="space-y-1">
-            <p className="flex items-center justify-center gap-1 text-muted-foreground">
+          <div className="space-y-1 rounded-md border p-2">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
               <TrendingUp className="h-4 w-4" /> Restante
             </p>
             <p className="font-semibold">R$ {remaining.toLocaleString("pt-BR")}</p>
+          </div>
+           <div className="space-y-1 rounded-md border p-2">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+              <Percent className="h-4 w-4" /> Margem
+            </p>
+            <p className="font-semibold">{margin.toFixed(1)}%</p>
           </div>
         </div>
         <form onSubmit={handleAddSale} className="flex items-center gap-2 pt-2">

@@ -15,6 +15,7 @@ export type SalesPerson = {
   avatar: string
   target: number
   achieved: number
+  margin: number
   salesHistory: SalesHistory[]
   monthlySales: MonthlySale[]
 }
@@ -54,10 +55,10 @@ const generateMonthlySalesHistory = (seed_offset = 0): MonthlySale[] => {
 // In a real app, this would be a database.
 // For this prototype, we're using an in-memory array.
 let initialSalesData: SalesPerson[] = [
-  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, achieved: 18500, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(1) },
-  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, achieved: 21000, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(2) },
-  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, achieved: 15000, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(3) },
-  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, achieved: 22500, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(4) },
+  { id: 1, name: "Ana Beatriz", avatar: "https://placehold.co/100x100.png", target: 25000, achieved: 18500, margin: 15.5, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(1) },
+  { id: 2, name: "Carlos Silva", avatar: "https://placehold.co/100x100.png", target: 20000, achieved: 21000, margin: 18.2, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(2) },
+  { id: 3, name: "Daniela Costa", avatar: "https://placehold.co/100x100.png", target: 30000, achieved: 15000, margin: 12.0, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(3) },
+  { id: 4, name: "Eduardo Lima", avatar: "https://placehold.co/100x100.png", target: 22000, achieved: 22500, margin: 16.8, salesHistory: generateSalesHistory(), monthlySales: generateMonthlySalesHistory(4) },
 ]
 
 // Update initial achieved amount from history
@@ -78,7 +79,7 @@ export const getSalesPersonById = (id: number): SalesPerson | undefined => {
     return getSalesData().find((p: SalesPerson) => p.id === id);
 }
 
-export const addSalesPerson = (newPersonData: { name: string; target: number }) => {
+export const addSalesPerson = (newPersonData: { name: string; target: number; margin: number }) => {
     const newId = initialSalesData.length > 0 ? Math.max(...initialSalesData.map(p => p.id)) + 1 : 1;
     const newPerson: SalesPerson = {
         id: newId,
@@ -86,6 +87,7 @@ export const addSalesPerson = (newPersonData: { name: string; target: number }) 
         avatar: `https://placehold.co/100x100.png`,
         target: newPersonData.target,
         achieved: 0,
+        margin: newPersonData.margin,
         // New employees start with no sales history
         salesHistory: Array.from({ length: 30 }, (_, i) => ({ day: i + 1, sales: 0 })),
         monthlySales: Array.from({ length: 12 }, (_, i) => {
