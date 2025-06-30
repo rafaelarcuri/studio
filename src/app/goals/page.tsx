@@ -4,7 +4,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Target } from 'lucide-react';
+import { ChevronLeft, Target, Upload, History, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -44,20 +44,53 @@ export default function GoalsPage() {
         <div>
           <h1 className="text-3xl font-bold">Gestão de Metas</h1>
           <p className="text-muted-foreground">
-            Ajuste as metas individuais e da equipe.
+            Ajuste, carregue e visualize o histórico de metas da equipe.
           </p>
         </div>
       </header>
       <Card>
         <CardHeader>
-          <CardTitle>Página em Construção</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-6 w-6" />
+            <span>Funcionalidade em Desenvolvimento</span>
+          </CardTitle>
           <CardDescription>
-            A funcionalidade de gestão de metas está sendo desenvolvida.
+            Estamos trabalhando para trazer uma ferramenta completa de gestão de metas.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center text-center text-muted-foreground h-64">
-          <Target className="h-16 w-16 mb-4" />
-          <p>Em breve você poderá gerenciar as metas aqui.</p>
+        <CardContent className="space-y-6 pt-6">
+            <p className="text-center text-muted-foreground">
+              Em breve, esta área permitirá que administradores realizem as seguintes ações:
+            </p>
+            <ul className="list-disc list-inside space-y-4 text-left mx-auto max-w-md">
+                <li className="flex items-start gap-3">
+                    <Upload className="h-5 w-5 mt-0.5 text-primary shrink-0" />
+                    <div>
+                        <span className="font-semibold">Cadastro e Edição em Massa:</span>
+                        <p className="text-sm text-muted-foreground">
+                            Carregue metas via formulário ou importando planilhas (CSV/Excel) com dados de vendedor, ID, meta mensal e trimestral.
+                        </p>
+                    </div>
+                </li>
+                <li className="flex items-start gap-3">
+                    <Edit className="h-5 w-5 mt-0.5 text-primary shrink-0" />
+                    <div>
+                        <span className="font-semibold">Alteração de Metas:</span>
+                        <p className="text-sm text-muted-foreground">
+                            Modifique metas existentes, atribua ou remova metas de colaboradores de forma simples.
+                        </p>
+                    </div>
+                </li>
+                 <li className="flex items-start gap-3">
+                    <History className="h-5 w-5 mt-0.5 text-primary shrink-0" />
+                    <div>
+                        <span className="font-semibold">Histórico de Metas:</span>
+                        <p className="text-sm text-muted-foreground">
+                            Visualize o histórico de metas por vendedor, filtrando por diferentes períodos para uma análise completa.
+                        </p>
+                    </div>
+                </li>
+            </ul>
         </CardContent>
       </Card>
     </main>
