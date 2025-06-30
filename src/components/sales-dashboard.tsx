@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, Target } from "lucide-react"
 
 import { useToast } from "@/hooks/use-toast"
+import { GoalSetter } from "@/components/goal-setter"
 import { IndividualPerformanceCard } from "@/components/individual-performance-card"
 import { TeamOverview } from "@/components/team-overview"
 import { Button } from "@/components/ui/button"
@@ -45,6 +46,7 @@ initialSalesData.forEach(person => {
 
 export default function SalesDashboard() {
   const [salesData, setSalesData] = useState<SalesPerson[]>(initialSalesData)
+  const [globalTarget, setGlobalTarget] = useState<number | undefined>(100000);
   const { toast } = useToast()
 
   const handleAddSale = (id: number, amount: number) => {
@@ -80,6 +82,14 @@ export default function SalesDashboard() {
     )
   }
 
+  const handleSetGlobalTarget = (target: number) => {
+    setGlobalTarget(target);
+    toast({
+        title: "Meta Global Definida!",
+        description: `A nova meta da equipe é de R$ ${target.toLocaleString("pt-BR")}.`,
+    });
+  }
+
   return (
     <div className="space-y-8">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -89,10 +99,18 @@ export default function SalesDashboard() {
             Seu dashboard de performance em tempo real.
           </p>
         </div>
-        <Button disabled>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Adicionar Vendedor
-        </Button>
+        <div className="flex gap-2">
+            <GoalSetter onSetTarget={handleSetGlobalTarget}>
+                <Button variant="outline">
+                    <Target className="mr-2 h-4 w-4" />
+                    Definir Meta Global
+                </Button>
+            </GoalSetter>
+            <Button disabled>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Adicionar Vendedor
+            </Button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -112,7 +130,7 @@ export default function SalesDashboard() {
         </div>
         <div className="lg:col-span-2">
           <h2 className="text-xl font-semibold mb-4">Desempenho da Equipe</h2>
-          <TeamOverview salesData={salesData} />
+          <TeamOverview salesData={salesData} globalTarget={globalTarget} />
         </div>
       </div>
     </div>

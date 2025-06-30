@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -40,14 +39,6 @@ export function IndividualPerformanceCard({
       setAmount("")
     }
   }
-
-  // Mock prediction
-  const today = new Date()
-  const dayOfMonth = today.getDate()
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-  const dailyAverage = dayOfMonth > 0 ? achieved / dayOfMonth : 0;
-  const daysRemainingInMonth = daysInMonth - dayOfMonth;
-  const prediction = achieved + dailyAverage * daysRemainingInMonth
 
   return (
     <Card
@@ -117,11 +108,6 @@ export function IndividualPerformanceCard({
           </Button>
         </form>
       </CardContent>
-      <CardFooter>
-        <p className="text-xs text-muted-foreground">
-          Previsão de vendas no mês: R$ {prediction.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}
-        </p>
-      </CardFooter>
     </Card>
   )
 }

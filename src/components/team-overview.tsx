@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface TeamOverviewProps {
   salesData: SalesPerson[]
+  globalTarget?: number
 }
 
-export function TeamOverview({ salesData }: TeamOverviewProps) {
-  const totalTarget = salesData.reduce((acc, p) => acc + p.target, 0)
+export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
+  const individualTotalTarget = salesData.reduce((acc, p) => acc + p.target, 0)
+  const totalTarget = globalTarget ?? individualTotalTarget
   const totalAchieved = salesData.reduce((acc, p) => acc + p.achieved, 0)
   const progress = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0
 
