@@ -1,7 +1,8 @@
+
 "use client"
 
 import Link from 'next/link'
-import { Award, CheckCircle2, Gem, Trophy, XCircle } from "lucide-react"
+import { Award, CheckCircle2, Gem, Trophy, XCircle, ArrowUp, ArrowDown } from "lucide-react"
 import type { SalesPerson } from "@/data/sales"
 import {
   Table,
@@ -58,6 +59,22 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
               const percentageOfTarget = person.target > 0 ? (person.achieved / person.target) * 100 : 0;
               const averageTicket = person.positivations.achieved > 0 ? person.achieved / person.positivations.achieved : 0;
               const hasMetTarget = person.achieved >= person.target;
+              
+              const { monthlySales } = person;
+              let salesComparison = null;
+              if (monthlySales && monthlySales.length >= 2) {
+                const lastMonthSales = monthlySales[monthlySales.length - 1].sales;
+                const previousMonthSales = monthlySales[monthlySales.length - 2].sales;
+                if (previousMonthSales > 0) {
+                  const diff = ((lastMonthSales - previousMonthSales) / previousMonthSales) * 100;
+                  salesComparison = {
+                    value: Math.abs(diff),
+                    isPositive: diff >= 0,
+                  };
+                } else if (lastMonthSales > 0) {
+                  salesComparison = { value: 100, isPositive: true };
+                }
+              }
 
               return (
                 <TableRow key={person.id} className="h-16">
@@ -76,7 +93,22 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
                     </Link>
                   </TableCell>
                   <TableCell className="text-right font-mono">
-                    R$ {person.achieved.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <div>
+                      R$ {person.achieved.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                    {salesComparison && (
+                      <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
+                        {salesComparison.isPositive ? (
+                            <ArrowUp className="h-3 w-3 text-green-500" />
+                        ) : (
+                            <ArrowDown className="h-3 w-3 text-red-500" />
+                        )}
+                        <span className={`${salesComparison.isPositive ? 'text-green-600' : 'text-red-600'} font-medium`}>
+                            {salesComparison.value.toFixed(0)}%
+                        </span>
+                         vs. mês anterior
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-right font-mono">
                     {person.positivations.achieved}
