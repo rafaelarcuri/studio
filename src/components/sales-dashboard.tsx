@@ -1,8 +1,9 @@
+
 "use client"
 
 import { useState } from "react"
 import Link from 'next/link'
-import { PlusCircle, Target } from "lucide-react"
+import { PlusCircle, Target, Trophy } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { getSalesData } from "@/data/sales"
@@ -35,13 +36,19 @@ export default function SalesDashboard() {
             Seu dashboard de performance em tempo real.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
             <GoalSetter onSetTarget={handleSetGlobalTarget}>
                 <Button variant="outline">
                     <Target className="mr-2 h-4 w-4" />
                     Definir Meta Global
                 </Button>
             </GoalSetter>
+            <Button asChild>
+              <Link href="/ranking">
+                <Trophy className="mr-2 h-4 w-4" />
+                Ranking de Clientes
+              </Link>
+            </Button>
             <Button asChild>
               <Link href="/sales/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
