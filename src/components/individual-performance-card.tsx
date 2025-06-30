@@ -1,7 +1,7 @@
 
 "use client"
 
-import { CheckCircle, DollarSign, Percent, Target, TrendingUp, Users } from "lucide-react"
+import { CheckCircle, DollarSign, Percent, Receipt, Target, TrendingUp, Users } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -25,6 +25,7 @@ export function IndividualPerformanceCard({
   const progress = target > 0 ? (achieved / target) * 100 : 100
   const remaining = Math.max(0, target - achieved)
   const hasMetTarget = achieved >= target
+  const averageTicket = positivations.achieved > 0 ? achieved / positivations.achieved : 0;
 
   return (
     <Card
@@ -53,24 +54,24 @@ export function IndividualPerformanceCard({
       </CardHeader>
       <CardContent className="space-y-6">
         <ProgressThermometer value={progress} />
-        <div className="grid grid-cols-2 gap-4 text-center text-sm">
+        <div className="grid grid-cols-3 gap-4 text-center text-sm">
           <div className="space-y-1 rounded-md border p-2">
             <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
               <Target className="h-4 w-4" /> Meta
             </p>
-            <p className="font-semibold">R$ {target.toLocaleString("pt-BR")}</p>
+            <p className="font-semibold">R$ {target.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div className="space-y-1 rounded-md border p-2">
             <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
               <DollarSign className="h-4 w-4" /> Vendido
             </p>
-            <p className="font-semibold">R$ {achieved.toLocaleString("pt-BR")}</p>
+            <p className="font-semibold">R$ {achieved.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
           <div className="space-y-1 rounded-md border p-2">
             <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
               <TrendingUp className="h-4 w-4" /> Restante
             </p>
-            <p className="font-semibold">R$ {remaining.toLocaleString("pt-BR")}</p>
+            <p className="font-semibold">R$ {remaining.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
            <div className="space-y-1 rounded-md border p-2">
             <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
@@ -83,6 +84,12 @@ export function IndividualPerformanceCard({
               <Users className="h-4 w-4" /> Positivação
             </p>
             <p className="font-semibold">{`${positivations.achieved} / ${positivations.target}`}</p>
+          </div>
+          <div className="space-y-1 rounded-md border p-2">
+            <p className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+              <Receipt className="h-4 w-4" /> Ticket Médio
+            </p>
+            <p className="font-semibold">R$ {averageTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </div>
       </CardContent>
