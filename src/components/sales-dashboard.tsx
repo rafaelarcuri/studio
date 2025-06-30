@@ -4,7 +4,7 @@
 import { useState } from "react"
 import Link from 'next/link'
 import { useRouter } from "next/navigation"
-import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users } from "lucide-react"
+import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users, Settings } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { getSalesData } from "@/data/sales"
@@ -16,11 +16,20 @@ import { TeamOverview } from "@/components/team-overview"
 import { Button } from "@/components/ui/button"
 import { SalesRankingTable } from "./sales-ranking-table"
 import { TeamContributionChart } from "./charts"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 
 export default function SalesDashboard() {
   const [salesData] = useState<SalesPerson[]>(getSalesData)
   const [globalTarget, setGlobalTarget] = useState<number | undefined>(100000);
+  const [isGoalSetterOpen, setIsGoalSetterOpen] = useState(false);
   const { toast } = useToast()
   const { logout } = useAuth();
   const router = useRouter();
@@ -48,42 +57,52 @@ export default function SalesDashboard() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-            <Button asChild>
-                <Link href="/ranking">
-                    <Trophy className="mr-2 h-4 w-4" />
-                    Ranking de Clientes
-                </Link>
-            </Button>
-            <Button asChild>
-                <Link href="/goals">
-                    <ClipboardList className="mr-2 h-4 w-4" />
-                    Gestão de Metas
-                </Link>
-            </Button>
-             <Button asChild>
-                <Link href="/users">
-                    <Users className="mr-2 h-4 w-4" />
-                    Gestão de Usuários
-                </Link>
-            </Button>
-            <GoalSetter onSetTarget={handleSetGlobalTarget}>
-                <Button variant="outline">
-                    <Target className="mr-2 h-4 w-4" />
-                    Definir Meta Global
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Settings className="h-5 w-5" />
+                  <span className="sr-only">Configurações</span>
                 </Button>
-            </GoalSetter>
-            <Button asChild>
-              <Link href="/sales/new">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Adicionar Usuário
-              </Link>
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Sair
-            </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Gerenciamento</DropdownMenuLabel>
+                <DropdownMenuItem onSelect={() => router.push('/ranking')}>
+                  <Trophy className="mr-2 h-4 w-4" />
+                  <span>Ranking de Clientes</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push('/goals')}>
+                  <ClipboardList className="mr-2 h-4 w-4" />
+                  <span>Gestão de Metas</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push('/users')}>
+                  <Users className="mr-2 h-4 w-4" />
+                  <span>Gestão de Usuários</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                <DropdownMenuItem onSelect={() => setIsGoalSetterOpen(true)}>
+                  <Target className="mr-2 h-4 w-4" />
+                  <span>Definir Meta Global</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push('/sales/new')}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  <span>Adicionar Usuário</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={handleLogout} className="text-red-600 focus:text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sair</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </header>
+
+      <GoalSetter 
+        onSetTarget={handleSetGlobalTarget}
+        open={isGoalSetterOpen}
+        onOpenChange={setIsGoalSetterOpen}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-1 space-y-4">

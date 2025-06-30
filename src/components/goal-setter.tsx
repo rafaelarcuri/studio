@@ -12,18 +12,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 interface GoalSetterProps {
   onSetTarget: (target: number) => void
-  children: React.ReactNode
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export function GoalSetter({ onSetTarget, children }: GoalSetterProps) {
-  const [open, setOpen] = useState(false)
+export function GoalSetter({ onSetTarget, open, onOpenChange }: GoalSetterProps) {
   const [amount, setAmount] = useState("")
 
   const handleSetTarget = () => {
@@ -31,13 +30,19 @@ export function GoalSetter({ onSetTarget, children }: GoalSetterProps) {
     if (!isNaN(targetAmount) && targetAmount > 0) {
       onSetTarget(targetAmount)
       setAmount("")
-      setOpen(false)
+      onOpenChange(false)
+    }
+  }
+
+  const handleOpenChange = (isOpen: boolean) => {
+    onOpenChange(isOpen);
+    if (!isOpen) {
+        setAmount("");
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Definir Meta Global</DialogTitle>
