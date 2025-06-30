@@ -14,6 +14,7 @@ import { GoalSetter } from "@/components/goal-setter"
 import { IndividualPerformanceCard } from "@/components/individual-performance-card"
 import { TeamOverview } from "@/components/team-overview"
 import { Button } from "@/components/ui/button"
+import { SalesRankingTable } from "./sales-ranking-table"
 
 
 export default function SalesDashboard() {
@@ -98,9 +99,9 @@ export default function SalesDashboard() {
               ))}
           </div>
         </div>
-        <div className="lg:col-span-2">
-          <h2 className="text-xl font-semibold mb-4">Desempenho da Equipe</h2>
+        <div className="lg:col-span-2 space-y-6">
           <TeamOverview salesData={salesData} globalTarget={globalTarget} />
+          <SalesRankingTable salesData={salesData} />
         </div>
       </div>
     </div>
