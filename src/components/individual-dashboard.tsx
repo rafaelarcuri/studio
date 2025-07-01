@@ -15,6 +15,7 @@ import { SalespersonCustomerList } from "./salesperson-customer-list";
 import { GoalAchievementCard } from "./goal-achievement-card";
 import { IndividualKpiPanel } from "./individual-kpi-panel";
 import { Skeleton } from "./ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface IndividualDashboardProps {
     salespersonId: number;
@@ -83,6 +84,10 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                             </Link>
                         </Button>
                     )}
+                    <Avatar className="h-12 w-12 hidden sm:flex">
+                        <AvatarImage src={salesPerson.avatar} alt={salesPerson.name} />
+                        <AvatarFallback>{salesPerson.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
                     <div>
                         <h1 className="text-2xl sm:text-3xl font-bold">Painel de {salesPerson.name}</h1>
                         <p className="text-muted-foreground">
@@ -90,10 +95,12 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                         </p>
                     </div>
                 </div>
-                <Button variant="outline" onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sair
-                </Button>
+                {user?.role === 'vendedor' && (
+                    <Button variant="outline" onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sair
+                    </Button>
+                )}
             </header>
 
             <IndividualKpiPanel salesPerson={salesPerson} />
