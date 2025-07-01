@@ -16,6 +16,19 @@ export type User = {
   avatar?: string;
 };
 
+const adminUser: User = {
+    id: 999,
+    docId: 'admin-user',
+    name: 'Admin Developer',
+    email: 'rhibler@magnumtires.com.br',
+    password: '123456',
+    role: 'gerente',
+    position: 'Desenvolvedor',
+    team: 'Desenvolvimento',
+    status: 'ativo',
+    avatar: 'https://placehold.co/100x100.png',
+};
+
 export const getUsers = async (): Promise<User[]> => {
     if (!db) return [];
     try {
@@ -36,6 +49,10 @@ export const getUsers = async (): Promise<User[]> => {
 }
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
+    if (email.toLowerCase() === adminUser.email) {
+        return adminUser;
+    }
+
     if (!db) return null;
     try {
         const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
@@ -49,6 +66,10 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 }
 
 export const getUserById = async (id: number): Promise<User | null> => {
+    if (id === adminUser.id) {
+        return adminUser;
+    }
+    
     if (!db) return null;
     try {
         const snapshot = await db.collection('users').where('id', '==', id).limit(1).get();
@@ -66,7 +87,7 @@ export const addUser = async (newUser: Omit<User, 'docId'>): Promise<string | nu
     try {
         // Check if user already exists
         const existingUser = await getUserByEmail(newUser.email);
-        if (existingUser) {
+        if (existingUser && existingUser.id !== adminUser.id) {
             console.error("User with this email already exists.");
             throw new Error("User with this email already exists.");
         }
