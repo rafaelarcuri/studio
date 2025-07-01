@@ -20,6 +20,7 @@ export type Task = {
 
 // Fetch all tasks from Firestore
 export const getTasks = async (): Promise<Task[]> => {
+  if (!db) return [];
   try {
     const snapshot = await db.collection('tasks').get();
     if (snapshot.empty) return [];
@@ -32,6 +33,7 @@ export const getTasks = async (): Promise<Task[]> => {
 
 // Add a new task to Firestore
 export const addTask = async (taskData: Omit<Task, 'id'>): Promise<string | null> => {
+  if (!db) return null;
   try {
     const docRef = await db.collection('tasks').add(taskData);
     return docRef.id;
@@ -43,6 +45,7 @@ export const addTask = async (taskData: Omit<Task, 'id'>): Promise<string | null
 
 // Update an existing task in Firestore
 export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<boolean> => {
+  if (!db) return false;
   try {
     await db.collection('tasks').doc(taskId).update(updates);
     return true;

@@ -13,6 +13,7 @@ export type Integration = {
 
 // Get all integrations from Firestore
 export const getIntegrations = async (): Promise<Integration[]> => {
+  if (!db) return [];
   try {
     const snapshot = await db.collection('integrations').get();
     if (snapshot.empty) {
@@ -27,6 +28,7 @@ export const getIntegrations = async (): Promise<Integration[]> => {
 
 // Update an integration's API key in Firestore
 export const updateIntegrationApiKey = async (id: string, apiKey: string): Promise<boolean> => {
+  if (!db) return false;
   try {
     await db.collection('integrations').doc(id).update({ apiKey });
     console.log(`[LOG] API Key for ${id} updated.`);
@@ -39,6 +41,7 @@ export const updateIntegrationApiKey = async (id: string, apiKey: string): Promi
 
 // Update an integration's status in Firestore
 export const updateIntegrationStatus = async (id: string, status: 'ativo' | 'inativo'): Promise<boolean> => {
+  if (!db) return false;
   try {
     await db.collection('integrations').doc(id).update({ status });
     console.log(`[LOG] Status for ${id} changed to ${status}.`);

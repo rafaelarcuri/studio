@@ -17,6 +17,7 @@ export type User = {
 };
 
 export const getUsers = async (): Promise<User[]> => {
+    if (!db) return [];
     try {
         const snapshot = await db.collection('users').get();
         if (snapshot.empty) return [];
@@ -35,7 +36,8 @@ export const getUsers = async (): Promise<User[]> => {
 }
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
-     try {
+    if (!db) return null;
+    try {
         const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
         if (snapshot.empty) return null;
         const doc = snapshot.docs[0];
@@ -47,7 +49,8 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 }
 
 export const getUserById = async (id: number): Promise<User | null> => {
-     try {
+    if (!db) return null;
+    try {
         const snapshot = await db.collection('users').where('id', '==', id).limit(1).get();
         if (snapshot.empty) return null;
         const doc = snapshot.docs[0];
@@ -59,6 +62,7 @@ export const getUserById = async (id: number): Promise<User | null> => {
 }
 
 export const addUser = async (newUser: Omit<User, 'docId'>): Promise<string | null> => {
+    if (!db) return null;
     try {
         // Check if user already exists
         const existingUser = await getUserByEmail(newUser.email);
@@ -75,6 +79,7 @@ export const addUser = async (newUser: Omit<User, 'docId'>): Promise<string | nu
 };
 
 export const updateUser = async (userId: number, updatedData: Partial<Omit<User, 'id' | 'docId' | 'password'>>): Promise<boolean> => {
+    if (!db) return false;
     try {
         const snapshot = await db.collection('users').where('id', '==', userId).limit(1).get();
         if (snapshot.empty) return false;
@@ -89,6 +94,7 @@ export const updateUser = async (userId: number, updatedData: Partial<Omit<User,
 };
 
 export const setUserStatus = async (userId: number, status: 'ativo' | 'inativo'): Promise<boolean> => {
+    if (!db) return false;
     try {
         const snapshot = await db.collection('users').where('id', '==', userId).limit(1).get();
         if (snapshot.empty) return false;

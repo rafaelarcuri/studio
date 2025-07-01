@@ -36,6 +36,7 @@ export type SalesPerson = {
 }
 
 export const getSalesData = async (): Promise<SalesPerson[]> => {
+    if (!db) return [];
     try {
         const snapshot = await db.collection('salesPeople').get();
         if (snapshot.empty) return [];
@@ -47,6 +48,7 @@ export const getSalesData = async (): Promise<SalesPerson[]> => {
 }
 
 export const getSalesPersonById = async (id: number): Promise<SalesPerson | undefined> => {
+    if (!db) return undefined;
     try {
         const snapshot = await db.collection('salesPeople').where('id', '==', id).limit(1).get();
         if (snapshot.empty) return undefined;
@@ -62,6 +64,7 @@ export const addSalesPerson = async (newPersonData: {
     id: number; name: string; target: number; margin: number; 
     positivationsTarget: number; newRegistrationsTarget: number; avatar?: string 
 }): Promise<string | null> => {
+    if (!db) return null;
     const newPerson: Omit<SalesPerson, 'docId'> = {
         id: newPersonData.id,
         name: newPersonData.name,
@@ -97,6 +100,7 @@ export const addSalesPerson = async (newPersonData: {
 };
 
 export const updateSalesPersonData = async (salesPersonId: number, updatedData: Partial<Omit<SalesPerson, 'id' | 'docId'>>): Promise<boolean> => {
+    if (!db) return false;
     try {
         const snapshot = await db.collection('salesPeople').where('id', '==', salesPersonId).limit(1).get();
         if (snapshot.empty) return false;
@@ -111,6 +115,7 @@ export const updateSalesPersonData = async (salesPersonId: number, updatedData: 
 };
 
 export const bulkUpdateSalesTargets = async (updates: { salesPersonId: number; monthlyTarget: number; quarterlyTarget: number }[]): Promise<boolean> => {
+    if (!db) return false;
     const batch = db.batch();
     try {
         for (const update of updates) {

@@ -7,22 +7,29 @@ import admin from 'firebase-admin';
 // Ensure your .env.local file has the FIREBASE_SERVICE_ACCOUNT_JSON variable set.
 const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 
+let db: admin.firestore.Firestore | null = null;
+
 if (!serviceAccount) {
-  throw new Error('Firebase service account key is not set. Please check your .env.local file.');
+  console.warn('Firebase service account key is not set. The application will run without database connectivity. Please check your .env.local file.');
+} else {
+    // Initialize Firebase Admin only if it hasn't been initialized yet.
+    // This prevents re-initialization errors during hot-reloading in development.
+    if (!admin.apps.length) {
+      try {
+        admin.initializeApp({
+          credential: admin.credential.cert(JSON.parse(serviceAccount)),
+        });
+      } catch (error) {
+        console.error('Firebase Admin initialization error:', error);
+        console.warn('The application will run without database connectivity.');
+      }
+    }
+
+    if (admin.apps.length > 0) {
+        db = admin.firestore();
+    }
 }
 
-// Initialize Firebase Admin only if it hasn't been initialized yet.
-// This prevents re-initialization errors during hot-reloading in development.
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert(JSON.parse(serviceAccount)),
-    });
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
-    throw new Error('Failed to initialize Firebase Admin SDK.');
-  }
-}
 
 // Export the Firestore database instance to be used throughout the application.
-export const db = admin.firestore();
+export { db };

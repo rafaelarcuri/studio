@@ -11,6 +11,7 @@ export type CustomerSale = {
 }
 
 export const getCustomerSalesData = async (): Promise<CustomerSale[]> => {
+    if (!db) return [];
     try {
         const snapshot = await db.collection('customerSales').get();
         if (snapshot.empty) {
@@ -29,7 +30,8 @@ export const getCustomerSalesData = async (): Promise<CustomerSale[]> => {
 }
 
 export const getCustomerSalesDataBySalesperson = async (salespersonId: number): Promise<CustomerSale[]> => {
-     try {
+    if (!db) return [];
+    try {
         const snapshot = await db.collection('customerSales').where('salesPersonId', '==', salespersonId).get();
         if (snapshot.empty) {
             return [];
