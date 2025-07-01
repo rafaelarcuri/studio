@@ -11,9 +11,16 @@ export type Integration = {
   apiKey: string;
 };
 
+const mockIntegrations: Integration[] = [
+  { id: 'erp_senior', name: 'ERP Senior', description: 'Integração com o sistema ERP Senior para sincronização de dados.', logo: '/path/to/senior-logo.png', status: 'ativo', apiKey: 'senior_mock_api_key_12345' },
+  { id: 'salesforce', name: 'Salesforce', description: 'Conecte seu CRM Salesforce para unificar informações de clientes.', logo: '/path/to/salesforce-logo.png', status: 'inativo', apiKey: '' },
+  { id: 'google_cloud', name: 'Google Cloud', description: 'Utilize serviços do Google Cloud para armazenamento e análise de dados.', logo: '/path/to/google-cloud-logo.png', status: 'ativo', apiKey: 'gcloud_mock_api_key_67890' },
+  { id: 'rd_station', name: 'RD Station', description: 'Sincronize leads e oportunidades com a plataforma RD Station Marketing.', logo: '/path/to/rd-logo.png', status: 'inativo', apiKey: '' },
+];
+
 // Get all integrations from Firestore
 export const getIntegrations = async (): Promise<Integration[]> => {
-  if (!db) return [];
+  if (!db) return mockIntegrations;
   try {
     const snapshot = await db.collection('integrations').get();
     if (snapshot.empty) {

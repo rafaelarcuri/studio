@@ -18,9 +18,31 @@ export type Task = {
   commentsCount: number;
 };
 
+const mockTasks: Task[] = [
+    { id: 'task-1', title: 'Ligar para cliente inadimplente', clientName: 'Supermercado Central', assigneeId: 1, dueDate: '2024-07-25', category: 'inadimplencia', status: 'pendente', priority: 'high', commentsCount: 2 },
+    { id: 'task-2', title: 'Enviar nova proposta comercial', clientName: 'Tecidos & Cia', assigneeId: 2, dueDate: '2024-07-28', category: 'prospeccao', status: 'em_andamento', priority: 'medium', commentsCount: 0 },
+    { id: 'task-3', title: 'Agendar visita de demonstração', clientName: 'Construtora Rocha Forte', assigneeId: 2, dueDate: '2024-08-02', category: 'prospeccao', status: 'pendente', priority: 'high', commentsCount: 1 },
+    { id: 'task-4', title: 'Acompanhar pedido recente', clientName: 'Restaurante Sabor Divino', assigneeId: 3, dueDate: '2024-07-24', category: 'carteira', status: 'concluida', priority: 'medium', commentsCount: 5 },
+    { id: 'task-5', title: 'Reativar cliente antigo', clientName: 'Oficina Mecânica Veloz', assigneeId: 3, dueDate: '2024-07-30', category: 'inativos', status: 'em_andamento', priority: 'low', commentsCount: 0 },
+    { id: 'task-6', title: 'Negociar dívida', clientName: 'Farmácia Bem-Estar', assigneeId: 4, dueDate: '2024-07-22', category: 'inadimplencia', status: 'concluida', priority: 'high', commentsCount: 3 },
+    { id: 'task-7', title: 'Apresentar novos produtos', clientName: 'Distribuidora de Bebidas Gelada', assigneeId: 5, dueDate: '2024-08-05', category: 'carteira', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-8', title: 'Enviar catálogo atualizado', clientName: 'Petshop Amigo Fiel', assigneeId: 5, dueDate: '2024-07-26', category: 'carteira', status: 'em_andamento', priority: 'low', commentsCount: 1 },
+    { id: 'task-9', title: 'Follow-up de proposta', clientName: 'Academia Corpo em Movimento', assigneeId: 6, dueDate: '2024-07-29', category: 'prospeccao', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-10', title: 'Recuperar cliente inativo', clientName: 'Salão de Beleza Charme', assigneeId: 6, dueDate: '2024-08-01', category: 'inativos', status: 'pendente', priority: 'low', commentsCount: 0 },
+    { id: 'task-11', title: 'Cobrança amigável', clientName: 'Material de Construção Casa Nova', assigneeId: 7, dueDate: '2024-07-23', category: 'inadimplencia', status: 'em_andamento', priority: 'high', commentsCount: 4 },
+    { id: 'task-12', title: 'Renovar contrato', clientName: 'Escola de Idiomas Global', assigneeId: 7, dueDate: '2024-08-10', category: 'carteira', status: 'pendente', priority: 'high', commentsCount: 0 },
+    { id: 'task-13', title: 'Verificar satisfação do cliente', clientName: 'Gráfica Impressão Rápida', assigneeId: 8, dueDate: '2024-07-27', category: 'carteira', status: 'concluida', priority: 'low', commentsCount: 2 },
+    { id: 'task-14', title: 'Prospectar novo contato', clientName: 'Agência de Viagens Mundo Afora', assigneeId: 8, dueDate: '2024-07-31', category: 'prospeccao', status: 'em_andamento', priority: 'medium', commentsCount: 1 },
+    { id: 'task-15', title: 'Oferecer upgrade de plano', clientName: 'Loja de Eletrônicos InovaTec', assigneeId: 9, dueDate: '2024-08-08', category: 'carteira', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-16', title: 'Resolver pendência de entrega', clientName: 'Padaria Pão Quente', assigneeId: 1, dueDate: '2024-07-25', category: 'carteira', status: 'em_andamento', priority: 'high', commentsCount: 3 },
+    { id: 'task-17', title: 'Prospecção de feira de negócios', clientName: 'Cliente Novo A', assigneeId: 10, dueDate: '2024-08-15', category: 'prospeccao', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-18', title: 'Entender motivo de inatividade', clientName: 'Advocacia & Associados', assigneeId: 10, dueDate: '2024-08-04', category: 'inativos', status: 'pendente', priority: 'low', commentsCount: 0 },
+];
+
+
 // Fetch all tasks from Firestore
 export const getTasks = async (): Promise<Task[]> => {
-  if (!db) return [];
+  if (!db) return mockTasks;
   try {
     const snapshot = await db.collection('tasks').get();
     if (snapshot.empty) return [];
