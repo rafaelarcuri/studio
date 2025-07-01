@@ -1,8 +1,7 @@
-
 "use client"
 
 import Link from 'next/link'
-import { Award, CheckCircle2, Gem, Trophy, XCircle, ArrowUp, ArrowDown } from "lucide-react"
+import { Award, CheckCircle2, Gem, Trophy, XCircle, ArrowUp, ArrowDown, CheckCircle } from "lucide-react"
 import type { SalesPerson } from "@/data/sales"
 import {
   Table,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { cn } from '@/lib/utils'
 
 interface SalesRankingTableProps {
   salesData: SalesPerson[]
@@ -61,7 +61,7 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
               const averageTicket = person.positivations.achieved > 0 ? person.achieved / person.positivations.achieved : 0;
               const hasMetTarget = person.achieved >= person.target;
               
-              const { monthlySales } = person;
+              const { monthlySales, achieved, target } = person;
               let salesComparison = null;
               if (monthlySales && monthlySales.length >= 2) {
                 const lastMonthSales = monthlySales[monthlySales.length - 1].sales;
@@ -76,6 +76,25 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
                   salesComparison = { value: 100, isPositive: true };
                 }
               }
+              
+              // Sales Projection Logic
+              const today = new Date();
+              const currentDay = today.getDate();
+              const safeCurrentDay = Math.max(1, currentDay);
+              const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+              
+              let projectedSales = 0;
+              let willReachProjectedTarget = false;
+
+              if (achieved > 0 && currentDay < daysInMonth) {
+                  const dailyAverage = achieved / safeCurrentDay;
+                  projectedSales = dailyAverage * daysInMonth;
+                  willReachProjectedTarget = projectedSales >= target;
+              } else if (achieved >= target) {
+                  projectedSales = achieved;
+                  willReachProjectedTarget = true;
+              }
+
 
               return (
                 <TableRow key={person.id} className="h-16">
@@ -93,12 +112,12 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
                       <span className="font-medium">{person.name}</span>
                     </Link>
                   </TableCell>
-                  <TableCell className="text-right font-mono">
-                    <div>
+                  <TableCell className="text-right font-mono text-xs">
+                    <div className="text-sm">
                       R$ {person.achieved.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                     {salesComparison && (
-                      <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
+                      <div className="flex items-center justify-end gap-1 text-muted-foreground">
                         {salesComparison.isPositive ? (
                             <ArrowUp className="h-3 w-3 text-green-500" />
                         ) : (
@@ -110,6 +129,19 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
                          vs. mês anterior
                       </div>
                     )}
+                    <div className="flex items-center justify-end gap-1.5 text-muted-foreground mt-1">
+                        {willReachProjectedTarget ? (
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                        ) : (
+                            <XCircle className="h-3 w-3 text-red-500" />
+                        )}
+                        <span>
+                            Projeção:
+                            <span className={cn("font-bold ml-1", willReachProjectedTarget ? "text-green-600" : "text-red-600")}>
+                                R$ {projectedSales.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                        </span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right font-mono">
                     {person.positivations.achieved}
