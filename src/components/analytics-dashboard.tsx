@@ -225,10 +225,15 @@ export default function AnalyticsDashboard() {
                         <TableRow key={data.user.id}>
                             <TableCell>
                             <div className="flex items-center gap-3">
-                                <Avatar className="h-9 w-9">
-                                <AvatarImage src={data.user.avatar} alt={data.user.name} />
-                                <AvatarFallback>{data.user.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
+                                <div className="relative">
+                                    <Avatar className="h-9 w-9">
+                                        <AvatarImage src={data.user.avatar} alt={data.user.name} />
+                                        <AvatarFallback>{data.user.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    {data.user.status === 'ativo' && (
+                                        <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-card" />
+                                    )}
+                                </div>
                                 <span className="font-medium">{data.user.name}</span>
                             </div>
                             </TableCell>

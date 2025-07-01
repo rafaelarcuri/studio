@@ -123,10 +123,15 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-2 flex-col gap-2">
          <div className="flex items-center gap-3 p-2 rounded-md bg-sidebar-accent/50">
-            <Avatar className="h-10 w-10">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+                <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                {user.status === 'ativo' && (
+                    <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-sidebar-accent" />
+                )}
+            </div>
             <div className="flex flex-col">
                 <span className="text-sm font-semibold">{user.name}</span>
                 <span className="text-xs text-muted-foreground">{user.email}</span>

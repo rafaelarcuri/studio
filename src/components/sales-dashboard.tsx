@@ -12,22 +12,36 @@ import { TeamOverview } from "@/components/team-overview"
 import { SalesRankingTable } from "./sales-ranking-table"
 import { TeamContributionChart } from "./charts"
 import { Skeleton } from "./ui/skeleton"
+import type { User } from "@/data/users"
+import { getUsers } from "@/data/users"
 
 
 export default function SalesDashboard() {
   const [salesData, setSalesData] = useState<SalesPerson[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalTarget, setGlobalTarget] = useState<number | undefined>(100000);
 
   useEffect(() => {
     const fetchData = async () => {
         setIsLoading(true);
-        const data = await getSalesData();
-        setSalesData(data);
+        const [sales, usersData] = await Promise.all([getSalesData(), getUsers()]);
+        setSalesData(sales);
+        setUsers(usersData);
         setIsLoading(false);
     }
     fetchData();
   }, []);
+
+  const mergedSalesData = salesData
+    .map(sp => {
+        const user = users.find(u => u.salesPersonId === sp.id);
+        return {
+            ...sp,
+            status: user?.status ?? 'inativo' as 'ativo' | 'inativo'
+        };
+    })
+    .sort((a, b) => b.achieved - a.achieved);
 
   if (isLoading) {
     return (
@@ -65,8 +79,7 @@ export default function SalesDashboard() {
         <div className="md:col-span-2 lg:col-span-1 space-y-4">
           <h2 className="text-xl font-semibold">Desempenho Individual</h2>
           <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar">
-            {salesData
-              .sort((a, b) => b.achieved - a.achieved)
+            {mergedSalesData
               .map(person => (
                 <Link key={person.id} href={`/sales/${person.id}`} className="no-underline text-current outline-none focus:ring-2 focus:ring-ring rounded-lg">
                   <IndividualPerformanceCard
@@ -79,7 +92,7 @@ export default function SalesDashboard() {
         <div className="md:col-span-3 lg:col-span-2 space-y-6">
           <TeamOverview salesData={salesData} globalTarget={globalTarget} />
           <TeamContributionChart salesData={salesData} />
-          <SalesRankingTable salesData={salesData} />
+          <SalesRankingTable salesData={mergedSalesData} />
         </div>
       </div>
     </div>

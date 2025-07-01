@@ -166,6 +166,7 @@ export default function NewSalespersonForm() {
                                         <UserIcon className="h-12 w-12" />
                                     </AvatarFallback>
                                 </Avatar>
+                                <span className="absolute bottom-1 right-1 block h-4 w-4 rounded-full bg-green-500 ring-2 ring-card" />
                                 <Button
                                     type="button"
                                     variant="outline"

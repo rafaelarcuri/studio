@@ -68,10 +68,15 @@ export function KanbanCard({ task, assignee, isOverlay }: KanbanCardProps) {
         <div className="flex justify-between items-start">
           <p className="font-semibold text-sm leading-tight">{task.title}</p>
           {assignee && (
-            <Avatar className="h-7 w-7">
-              <AvatarImage src={assignee.avatar} alt={assignee.name} />
-              <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={assignee.avatar} alt={assignee.name} />
+                <AvatarFallback>{assignee.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              {assignee.status === 'ativo' && (
+                <span className="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-500 ring-1 ring-card" />
+              )}
+            </div>
           )}
         </div>
         <p className="text-xs text-muted-foreground">{task.clientName}</p>

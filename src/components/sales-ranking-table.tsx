@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from '@/lib/utils'
 
 interface SalesRankingTableProps {
-  salesData: SalesPerson[]
+  salesData: (SalesPerson & { status: 'ativo' | 'inativo' })[];
 }
 
 const RankIcon = ({ rank }: { rank: number }) => {
@@ -105,10 +105,15 @@ export function SalesRankingTable({ salesData }: SalesRankingTableProps) {
                    </TableCell>
                   <TableCell>
                     <Link href={`/sales/${person.id}`} className="flex items-center gap-4 hover:underline">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={person.avatar} alt={person.name} data-ai-hint="person portrait" />
-                        <AvatarFallback>{person.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
+                      <div className="relative">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={person.avatar} alt={person.name} data-ai-hint="person portrait" />
+                          <AvatarFallback>{person.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {person.status === 'ativo' && (
+                            <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-card" />
+                        )}
+                      </div>
                       <span className="font-medium">{person.name}</span>
                     </Link>
                   </TableCell>

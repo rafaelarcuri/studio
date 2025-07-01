@@ -303,10 +303,15 @@ export default function UserManagement() {
                         <TableRow key={user.id}>
                         <TableCell>
                             <div className="flex items-center gap-3">
-                                <Avatar className="h-10 w-10">
-                                    <AvatarImage src={user.avatar} alt={user.name} />
-                                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
+                                <div className="relative">
+                                    <Avatar className="h-10 w-10">
+                                        <AvatarImage src={user.avatar} alt={user.name} />
+                                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    {user.status === 'ativo' && (
+                                        <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-card" />
+                                    )}
+                                </div>
                                 <div>
                                     <div className="font-medium">{user.name}</div>
                                     <div className="text-sm text-muted-foreground">{user.email}</div>
@@ -371,6 +376,9 @@ export default function UserManagement() {
                                     <AvatarImage src={avatarUrl} />
                                     <AvatarFallback><UserIcon className="h-12 w-12" /></AvatarFallback>
                                 </Avatar>
+                                {editingUser?.status === 'ativo' && (
+                                    <span className="absolute bottom-1 right-1 block h-4 w-4 rounded-full bg-green-500 ring-2 ring-background" />
+                                )}
                                 <Button 
                                     type="button" 
                                     variant="outline"
