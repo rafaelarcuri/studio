@@ -66,7 +66,7 @@ export function IndividualKpiPanel({ salesPerson }: IndividualKpiPanelProps) {
     );
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <KpiCard
                 icon={Target}
                 title="Meta"
