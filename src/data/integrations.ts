@@ -33,6 +33,14 @@ let integrations: Integration[] = [
     status: 'ativo',
     apiKey: 'rdstation_live_abc123def456ghi789jkl0mno',
   },
+  {
+    id: 'google-cloud',
+    name: 'Google Cloud',
+    description: 'Utilize os serviços de IA e armazenamento do Google Cloud para potencializar suas análises e dados.',
+    logo: 'https://placehold.co/100x100.png',
+    status: 'inativo',
+    apiKey: '',
+  },
 ];
 
 // Get all integrations
