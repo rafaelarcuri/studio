@@ -1,9 +1,10 @@
+
 "use client"
 
 import { useState } from "react"
 import Link from 'next/link'
 import { useRouter } from "next/navigation"
-import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users, Settings, ClipboardCheck, PieChart } from "lucide-react"
+import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users, Settings, ClipboardCheck, PieChart, Plug } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { getSalesData } from "@/data/sales"
@@ -105,6 +106,10 @@ export default function SalesDashboard() {
                 <DropdownMenuItem onSelect={() => router.push('/users')}>
                   <Users className="mr-2 h-4 w-4" />
                   <span>Gestão de Usuários</span>
+                </DropdownMenuItem>
+                 <DropdownMenuItem onSelect={() => router.push('/integrations')}>
+                  <Plug className="mr-2 h-4 w-4" />
+                  <span>APIs e Integrações</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Ações</DropdownMenuLabel>
