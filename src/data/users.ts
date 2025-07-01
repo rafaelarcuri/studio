@@ -1,4 +1,3 @@
-
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -21,7 +20,7 @@ const adminUser: User = {
     id: 999,
     docId: 'admin-user',
     name: 'Admin Developer',
-    email: 'rvasconcelos@magnumtires.com.br',
+    email: 'rhibler@magnumtires.com.br',
     password: '123456',
     role: 'gerente',
     position: 'Desenvolvedor',
