@@ -152,7 +152,7 @@ export default function GoalsPage() {
     <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <header className="flex items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Gestão de Metas</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Gestão de Metas</h1>
           <p className="text-muted-foreground">
             Modifique metas existentes de forma individual ou carregue em massa.
           </p>

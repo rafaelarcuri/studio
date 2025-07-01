@@ -84,7 +84,7 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                         </Button>
                     )}
                     <div>
-                        <h1 className="text-3xl font-bold">Painel de {salesPerson.name}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold">Painel de {salesPerson.name}</h1>
                         <p className="text-muted-foreground">
                             Acompanhe seu desempenho de vendas individual.
                         </p>

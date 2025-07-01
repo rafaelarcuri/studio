@@ -61,7 +61,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-4">
                 <Target className="h-12 w-12 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Vendas Ágil</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">Vendas Ágil</CardTitle>
             <CardDescription>Acesse seu painel de vendas</CardDescription>
         </CardHeader>
         <CardContent>

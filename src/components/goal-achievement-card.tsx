@@ -52,7 +52,7 @@ export function GoalAchievementCard({ salesPerson }: GoalAchievementCardProps) {
             <Target className="h-10 w-10 text-primary-foreground" />
           </div>
           <div className="text-right">
-            <p className="text-4xl font-bold">
+            <p className="text-3xl font-bold sm:text-4xl">
               {percentage.toFixed(1).replace(".", ",")}%
             </p>
             <div className="flex items-center justify-end gap-1 mt-1 text-sm">

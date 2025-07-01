@@ -18,7 +18,7 @@ const StatCard = ({ icon: Icon, title, value, comparison }: {
     <div className="rounded-lg border bg-card p-4 flex flex-col items-center justify-center text-center min-h-[140px]">
         <Icon className="mb-2 h-7 w-7 text-accent" />
         <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-xl font-bold sm:text-2xl">{value}</p>
 
         {comparison ? (
             <div className="flex items-center gap-1 mt-1 text-xs">

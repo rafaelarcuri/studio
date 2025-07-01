@@ -37,7 +37,7 @@ export default function TasksPage() {
     <main className="p-4 sm:p-6 lg:p-8 flex flex-col h-screen overflow-hidden">
         <header className="flex items-center gap-4 mb-6 shrink-0">
             <div>
-                <h1 className="text-3xl font-bold">Quadro de Tarefas</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold">Quadro de Tarefas</h1>
                 <p className="text-muted-foreground">
                     Monitore e gerencie as atividades da sua equipe.
                 </p>

@@ -134,7 +134,7 @@ export default function KanbanBoard() {
                         <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{getTasksByStatus('pendente').length}</div>
+                        <div className="text-xl sm:text-2xl font-bold">{getTasksByStatus('pendente').length}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -142,7 +142,7 @@ export default function KanbanBoard() {
                         <CardTitle className="text-sm font-medium">Em Andamento</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{getTasksByStatus('em_andamento').length}</div>
+                        <div className="text-xl sm:text-2xl font-bold">{getTasksByStatus('em_andamento').length}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -150,7 +150,7 @@ export default function KanbanBoard() {
                         <CardTitle className="text-sm font-medium">Concluídas</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{getTasksByStatus('concluida').length}</div>
+                        <div className="text-xl sm:text-2xl font-bold">{getTasksByStatus('concluida').length}</div>
                     </CardContent>
                 </Card>
                  <Card>
@@ -159,7 +159,7 @@ export default function KanbanBoard() {
                         <PieChart className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">--%</div>
+                        <div className="text-xl sm:text-2xl font-bold">--%</div>
                     </CardContent>
                 </Card>
             </div>

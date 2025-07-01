@@ -167,7 +167,7 @@ export default function AnalyticsDashboard() {
             <ListTodo className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{teamTotals.totalAssigned}</div>
+            <div className="text-xl font-bold sm:text-2xl">{teamTotals.totalAssigned}</div>
             <p className="text-xs text-muted-foreground">Total de tarefas no período</p>
           </CardContent>
         </Card>
@@ -177,7 +177,7 @@ export default function AnalyticsDashboard() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{teamTotals.totalCompleted}</div>
+            <div className="text-xl font-bold sm:text-2xl">{teamTotals.totalCompleted}</div>
              <p className="text-xs text-muted-foreground">Tarefas finalizadas com sucesso</p>
           </CardContent>
         </Card>
@@ -187,7 +187,7 @@ export default function AnalyticsDashboard() {
             <Hourglass className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{teamTotals.totalPending}</div>
+            <div className="text-xl font-bold sm:text-2xl">{teamTotals.totalPending}</div>
             <p className="text-xs text-muted-foreground">Aguardando início</p>
           </CardContent>
         </Card>
@@ -197,7 +197,7 @@ export default function AnalyticsDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{teamTotals.totalInProgress}</div>
+            <div className="text-xl font-bold sm:text-2xl">{teamTotals.totalInProgress}</div>
             <p className="text-xs text-muted-foreground">Tarefas sendo executadas</p>
           </CardContent>
         </Card>
