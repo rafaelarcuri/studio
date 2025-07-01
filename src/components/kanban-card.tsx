@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useSortable } from '@dnd-kit/sortable';
@@ -10,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Play, Check } from 'lucide-react';
+import { MessageSquare, Play, Check, Phone, User as UserIcon } from 'lucide-react';
 
 interface KanbanCardProps {
   task: Task;
@@ -79,7 +78,18 @@ export function KanbanCard({ task, assignee, isOverlay }: KanbanCardProps) {
             </div>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">{task.clientName}</p>
+        
+        <div className="text-xs text-muted-foreground space-y-1">
+            <div className="flex items-center gap-1.5">
+                <UserIcon className="h-3 w-3" />
+                <span>{task.clientName} (ID: {task.clientId})</span>
+            </div>
+             <div className="flex items-center gap-1.5">
+                <Phone className="h-3 w-3" />
+                <span>{task.clientPhone}</span>
+            </div>
+        </div>
+
         <div className="flex justify-between items-center text-xs">
             <div className="flex items-center gap-2 text-muted-foreground">
                 <button className="hover:text-primary"><Play className="h-4 w-4" /></button>

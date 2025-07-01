@@ -9,7 +9,9 @@ export type Priority = 'low' | 'medium' | 'high';
 export type Task = {
   id: string; // Firestore document ID
   title: string;
+  clientId: number;
   clientName: string;
+  clientPhone: string;
   assigneeId: number;
   dueDate: string; // YYYY-MM-DD
   category: Category;
@@ -19,24 +21,24 @@ export type Task = {
 };
 
 const mockTasks: Task[] = [
-    { id: 'task-1', title: 'Ligar para cliente inadimplente', clientName: 'Supermercado Central', assigneeId: 1, dueDate: '2024-07-25', category: 'inadimplencia', status: 'pendente', priority: 'high', commentsCount: 2 },
-    { id: 'task-2', title: 'Enviar nova proposta comercial', clientName: 'Tecidos & Cia', assigneeId: 2, dueDate: '2024-07-28', category: 'prospeccao', status: 'em_andamento', priority: 'medium', commentsCount: 0 },
-    { id: 'task-3', title: 'Agendar visita de demonstração', clientName: 'Construtora Rocha Forte', assigneeId: 2, dueDate: '2024-08-02', category: 'prospeccao', status: 'pendente', priority: 'high', commentsCount: 1 },
-    { id: 'task-4', title: 'Acompanhar pedido recente', clientName: 'Restaurante Sabor Divino', assigneeId: 3, dueDate: '2024-07-24', category: 'carteira', status: 'concluida', priority: 'medium', commentsCount: 5 },
-    { id: 'task-5', title: 'Reativar cliente antigo', clientName: 'Oficina Mecânica Veloz', assigneeId: 3, dueDate: '2024-07-30', category: 'inativos', status: 'em_andamento', priority: 'low', commentsCount: 0 },
-    { id: 'task-6', title: 'Negociar dívida', clientName: 'Farmácia Bem-Estar', assigneeId: 4, dueDate: '2024-07-22', category: 'inadimplencia', status: 'concluida', priority: 'high', commentsCount: 3 },
-    { id: 'task-7', title: 'Apresentar novos produtos', clientName: 'Distribuidora de Bebidas Gelada', assigneeId: 5, dueDate: '2024-08-05', category: 'carteira', status: 'pendente', priority: 'medium', commentsCount: 0 },
-    { id: 'task-8', title: 'Enviar catálogo atualizado', clientName: 'Petshop Amigo Fiel', assigneeId: 5, dueDate: '2024-07-26', category: 'carteira', status: 'em_andamento', priority: 'low', commentsCount: 1 },
-    { id: 'task-9', title: 'Follow-up de proposta', clientName: 'Academia Corpo em Movimento', assigneeId: 6, dueDate: '2024-07-29', category: 'prospeccao', status: 'pendente', priority: 'medium', commentsCount: 0 },
-    { id: 'task-10', title: 'Recuperar cliente inativo', clientName: 'Salão de Beleza Charme', assigneeId: 6, dueDate: '2024-08-01', category: 'inativos', status: 'pendente', priority: 'low', commentsCount: 0 },
-    { id: 'task-11', title: 'Cobrança amigável', clientName: 'Material de Construção Casa Nova', assigneeId: 7, dueDate: '2024-07-23', category: 'inadimplencia', status: 'em_andamento', priority: 'high', commentsCount: 4 },
-    { id: 'task-12', title: 'Renovar contrato', clientName: 'Escola de Idiomas Global', assigneeId: 7, dueDate: '2024-08-10', category: 'carteira', status: 'pendente', priority: 'high', commentsCount: 0 },
-    { id: 'task-13', title: 'Verificar satisfação do cliente', clientName: 'Gráfica Impressão Rápida', assigneeId: 8, dueDate: '2024-07-27', category: 'carteira', status: 'concluida', priority: 'low', commentsCount: 2 },
-    { id: 'task-14', title: 'Prospectar novo contato', clientName: 'Agência de Viagens Mundo Afora', assigneeId: 8, dueDate: '2024-07-31', category: 'prospeccao', status: 'em_andamento', priority: 'medium', commentsCount: 1 },
-    { id: 'task-15', title: 'Oferecer upgrade de plano', clientName: 'Loja de Eletrônicos InovaTec', assigneeId: 9, dueDate: '2024-08-08', category: 'carteira', status: 'pendente', priority: 'medium', commentsCount: 0 },
-    { id: 'task-16', title: 'Resolver pendência de entrega', clientName: 'Padaria Pão Quente', assigneeId: 1, dueDate: '2024-07-25', category: 'carteira', status: 'em_andamento', priority: 'high', commentsCount: 3 },
-    { id: 'task-17', title: 'Prospecção de feira de negócios', clientName: 'Cliente Novo A', assigneeId: 10, dueDate: '2024-08-15', category: 'prospeccao', status: 'pendente', priority: 'medium', commentsCount: 0 },
-    { id: 'task-18', title: 'Entender motivo de inatividade', clientName: 'Advocacia & Associados', assigneeId: 10, dueDate: '2024-08-04', category: 'inativos', status: 'pendente', priority: 'low', commentsCount: 0 },
+    { id: 'task-1', title: 'Ligar para cliente inadimplente', clientId: 101, clientName: 'Supermercado Central', clientPhone: '(11) 98765-4321', assigneeId: 1, dueDate: '2024-07-25', category: 'inadimplencia', status: 'pendente', priority: 'high', commentsCount: 2 },
+    { id: 'task-2', title: 'Enviar nova proposta comercial', clientId: 103, clientName: 'Tecidos & Cia', clientPhone: '(21) 99876-5432', assigneeId: 2, dueDate: '2024-07-28', category: 'prospeccao', status: 'em_andamento', priority: 'medium', commentsCount: 0 },
+    { id: 'task-3', title: 'Agendar visita de demonstração', clientId: 104, clientName: 'Construtora Rocha Forte', clientPhone: '(31) 98765-1234', assigneeId: 2, dueDate: '2024-08-02', category: 'prospeccao', status: 'pendente', priority: 'high', commentsCount: 1 },
+    { id: 'task-4', title: 'Acompanhar pedido recente', clientId: 105, clientName: 'Restaurante Sabor Divino', clientPhone: '(41) 91234-9876', assigneeId: 3, dueDate: '2024-07-24', category: 'carteira', status: 'concluida', priority: 'medium', commentsCount: 5 },
+    { id: 'task-5', title: 'Reativar cliente antigo', clientId: 106, clientName: 'Oficina Mecânica Veloz', clientPhone: '(51) 98765-5678', assigneeId: 3, dueDate: '2024-07-30', category: 'inativos', status: 'em_andamento', priority: 'low', commentsCount: 0 },
+    { id: 'task-6', title: 'Negociar dívida', clientId: 107, clientName: 'Farmácia Bem-Estar', clientPhone: '(61) 91234-1234', assigneeId: 4, dueDate: '2024-07-22', category: 'inadimplencia', status: 'concluida', priority: 'high', commentsCount: 3 },
+    { id: 'task-7', title: 'Apresentar novos produtos', clientId: 109, clientName: 'Distribuidora de Bebidas Gelada', clientPhone: '(81) 91234-5555', assigneeId: 5, dueDate: '2024-08-05', category: 'carteira', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-8', title: 'Enviar catálogo atualizado', clientId: 110, clientName: 'Petshop Amigo Fiel', clientPhone: '(91) 98765-4444', assigneeId: 5, dueDate: '2024-07-26', category: 'carteira', status: 'em_andamento', priority: 'low', commentsCount: 1 },
+    { id: 'task-9', title: 'Follow-up de proposta', clientId: 111, clientName: 'Academia Corpo em Movimento', clientPhone: '(12) 91234-3333', assigneeId: 6, dueDate: '2024-07-29', category: 'prospeccao', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-10', title: 'Recuperar cliente inativo', clientId: 112, clientName: 'Salão de Beleza Charme', clientPhone: '(13) 98765-2222', assigneeId: 6, dueDate: '2024-08-01', category: 'inativos', status: 'pendente', priority: 'low', commentsCount: 0 },
+    { id: 'task-11', title: 'Cobrança amigável', clientId: 113, clientName: 'Material de Construção Casa Nova', clientPhone: '(14) 91234-1111', assigneeId: 7, dueDate: '2024-07-23', category: 'inadimplencia', status: 'em_andamento', priority: 'high', commentsCount: 4 },
+    { id: 'task-12', title: 'Renovar contrato', clientId: 114, clientName: 'Escola de Idiomas Global', clientPhone: '(15) 98765-0000', assigneeId: 7, dueDate: '2024-08-10', category: 'carteira', status: 'pendente', priority: 'high', commentsCount: 0 },
+    { id: 'task-13', title: 'Verificar satisfação do cliente', clientId: 115, clientName: 'Gráfica Impressão Rápida', clientPhone: '(16) 91234-9999', assigneeId: 8, dueDate: '2024-07-27', category: 'carteira', status: 'concluida', priority: 'low', commentsCount: 2 },
+    { id: 'task-14', title: 'Prospectar novo contato', clientId: 116, clientName: 'Agência de Viagens Mundo Afora', clientPhone: '(17) 98765-8888', assigneeId: 8, dueDate: '2024-07-31', category: 'prospeccao', status: 'em_andamento', priority: 'medium', commentsCount: 1 },
+    { id: 'task-15', title: 'Oferecer upgrade de plano', clientId: 117, clientName: 'Loja de Eletrônicos InovaTec', clientPhone: '(18) 91234-7777', assigneeId: 9, dueDate: '2024-08-08', category: 'carteira', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-16', title: 'Resolver pendência de entrega', clientId: 102, clientName: 'Padaria Pão Quente', clientPhone: '(11) 91234-5678', assigneeId: 1, dueDate: '2024-07-25', category: 'carteira', status: 'em_andamento', priority: 'high', commentsCount: 3 },
+    { id: 'task-17', title: 'Prospecção de feira de negócios', clientId: 901, clientName: 'Cliente Novo A', clientPhone: '(99) 99999-9999', assigneeId: 10, dueDate: '2024-08-15', category: 'prospeccao', status: 'pendente', priority: 'medium', commentsCount: 0 },
+    { id: 'task-18', title: 'Entender motivo de inatividade', clientId: 119, clientName: 'Advocacia & Associados', clientPhone: '(22) 91234-5555', assigneeId: 10, dueDate: '2024-08-04', category: 'inativos', status: 'pendente', priority: 'low', commentsCount: 0 },
 ];
 
 
