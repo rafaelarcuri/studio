@@ -16,6 +16,7 @@ import { GoalAchievementCard } from "./goal-achievement-card";
 import { IndividualKpiPanel } from "./individual-kpi-panel";
 import { Skeleton } from "./ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getUserById } from "@/data/users";
 
 interface IndividualDashboardProps {
     salespersonId: number;
@@ -25,13 +26,20 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
     const { logout, user } = useAuth();
     const router = useRouter();
     const [salesPerson, setSalesPerson] = useState<SalesPerson | undefined>();
+    const [userStatus, setUserStatus] = useState<'ativo' | 'inativo'>('inativo');
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
-            const data = await getSalesPersonById(salespersonId);
+            const [data, userData] = await Promise.all([
+                getSalesPersonById(salespersonId),
+                getUserById(salespersonId)
+            ]);
             setSalesPerson(data);
+            if (userData) {
+                setUserStatus(userData.status);
+            }
             setIsLoading(false);
         }
         if (salespersonId) {
@@ -84,10 +92,15 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                             </Link>
                         </Button>
                     )}
-                    <Avatar className="h-12 w-12 hidden sm:flex">
-                        <AvatarImage src={salesPerson.avatar} alt={salesPerson.name} />
-                        <AvatarFallback>{salesPerson.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                        <Avatar className="h-12 w-12 hidden sm:flex">
+                            <AvatarImage src={salesPerson.avatar} alt={salesPerson.name} />
+                            <AvatarFallback>{salesPerson.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {userStatus === 'ativo' && (
+                            <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" />
+                        )}
+                    </div>
                     <div>
                         <h1 className="text-2xl sm:text-3xl font-bold">Painel de {salesPerson.name}</h1>
                         <p className="text-muted-foreground">
@@ -95,7 +108,7 @@ export default function IndividualDashboard({ salespersonId }: IndividualDashboa
                         </p>
                     </div>
                 </div>
-                {user?.role === 'vendedor' && (
+                {user?.role === 'vendedor' && user.salesPersonId === salespersonId && (
                     <Button variant="outline" onClick={handleLogout}>
                         <LogOut className="mr-2 h-4 w-4" />
                         Sair
