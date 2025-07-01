@@ -1,3 +1,4 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -77,4 +78,44 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
     console.error(`Error updating task ${taskId}: `, error);
     return false;
   }
+};
+
+// Delete a task from Firestore
+export const deleteTask = async (taskId: string): Promise<boolean> => {
+  if (!db) {
+    const index = mockTasks.findIndex(t => t.id === taskId);
+    if (index > -1) {
+        mockTasks.splice(index, 1);
+        return true;
+    }
+    return false;
+  }
+  try {
+    await db.collection('tasks').doc(taskId).delete();
+    return true;
+  } catch (error) {
+    console.error(`Error deleting task ${taskId}: `, error);
+    return false;
+  }
+};
+
+// Bulk add tasks to Firestore
+export const bulkAddTasks = async (tasks: Omit<Task, 'id' | 'commentsCount'>[]): Promise<boolean> => {
+    if (!db) return false;
+    const batch = db.batch();
+    try {
+        tasks.forEach(taskData => {
+            const docRef = db.collection('tasks').doc(); // Firestore generates ID
+            const newTask = {
+                ...taskData,
+                commentsCount: 0 // Default value for new tasks
+            };
+            batch.set(docRef, newTask);
+        });
+        await batch.commit();
+        return true;
+    } catch (error) {
+        console.error("Error bulk adding tasks: ", error);
+        return false;
+    }
 };

@@ -26,6 +26,7 @@ import {
   Trophy,
   Users,
   ClipboardList,
+  ListChecks,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -91,16 +92,29 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarGroupContent>
         </SidebarGroup>
+        
+         <SidebarGroup>
+            <SidebarGroupLabel>Tarefas</SidebarGroupLabel>
+            <SidebarGroupContent>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname === '/tasks'}>
+                            <Link href="/tasks"><ClipboardList />Quadro Kanban</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname.startsWith('/tasks/management')}>
+                            <Link href="/tasks/management"><ListChecks />Gestão de Tarefas</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
 
          <SidebarGroup>
             <SidebarGroupLabel>Gestão</SidebarGroupLabel>
             <SidebarGroupContent>
                 <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild isActive={pathname.startsWith('/tasks')}>
-                            <Link href="/tasks"><ClipboardList />Quadro de Tarefas</Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
                      <SidebarMenuItem>
                         <SidebarMenuButton asChild isActive={pathname.startsWith('/goals')}>
                             <Link href="/goals"><Target />Metas da Equipe</Link>
