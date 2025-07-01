@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from 'next/link'
 import { useRouter } from "next/navigation"
 import { PlusCircle, Target, LogOut, Trophy, ClipboardList, Users, Settings, ClipboardCheck, PieChart, Plug } from "lucide-react"
@@ -28,15 +28,27 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Skeleton } from "./ui/skeleton"
 
 
 export default function SalesDashboard() {
-  const [salesData] = useState<SalesPerson[]>(getSalesData)
+  const [salesData, setSalesData] = useState<SalesPerson[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [globalTarget, setGlobalTarget] = useState<number | undefined>(100000);
   const [isGoalSetterOpen, setIsGoalSetterOpen] = useState(false);
   const { toast } = useToast()
   const { logout } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async () => {
+        setIsLoading(true);
+        const data = await getSalesData();
+        setSalesData(data);
+        setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   const handleSetGlobalTarget = (target: number) => {
     setGlobalTarget(target);
@@ -49,6 +61,27 @@ export default function SalesDashboard() {
   const handleLogout = () => {
     logout();
     router.push('/login');
+  }
+
+  if (isLoading) {
+    return (
+        <div className="p-8 space-y-8">
+            <div className="flex justify-between items-center">
+                <Skeleton className="h-12 w-1/4" />
+                <Skeleton className="h-10 w-1/4" />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-1 space-y-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                </div>
+                <div className="lg:col-span-2 space-y-4">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-96 w-full" />
+                </div>
+            </div>
+        </div>
+    );
   }
 
   return (

@@ -3,18 +3,18 @@
 
 import { createContext, useState, useEffect, type ReactNode } from 'react';
 import type { User } from '@/data/users';
-import { users } from '@/data/users';
+import { getUserByEmail, getUserById } from '@/data/users';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  login: () => false,
+  login: async () => false,
   logout: () => {},
   isLoading: true,
 });
@@ -28,44 +28,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // On initial load, try to rehydrate the user from localStorage
-    try {
-      const storedUser = localStorage.getItem('vendas-agil-user');
-      if (storedUser) {
-        const parsedUser: User = JSON.parse(storedUser);
-        // Re-validate the user against our "database"
-        const userExists = users.some(u => u.id === parsedUser.id && u.status === 'ativo');
-        if (userExists) {
-            // Refresh user data from our "source of truth" in case it was updated
-            const freshUser = users.find(u => u.id === parsedUser.id)!;
-            const userToStore = { ...freshUser };
-            // @ts-ignore
-            delete userToStore.password;
-            setUser(userToStore);
-        } else {
-            // User might be disabled or deleted, so clear storage
-             localStorage.removeItem('vendas-agil-user');
+    const rehydrateUser = async () => {
+        try {
+            const storedUserString = localStorage.getItem('vendas-agil-user');
+            if (storedUserString) {
+                const storedUser: Pick<User, 'id'> = JSON.parse(storedUserString);
+                // Re-validate the user against our "database"
+                const freshUser = await getUserById(storedUser.id);
+
+                if (freshUser && freshUser.status === 'ativo') {
+                    // @ts-ignore
+                    delete freshUser.password;
+                    setUser(freshUser);
+                } else {
+                    // User might be disabled or deleted, so clear storage
+                    localStorage.removeItem('vendas-agil-user');
+                }
+            }
+        } catch (error) {
+            console.error('Failed to parse user from localStorage', error);
+            localStorage.removeItem('vendas-agil-user');
+        } finally {
+            setIsLoading(false);
         }
-      }
-    } catch (error) {
-      console.error('Failed to parse user from localStorage', error);
-      localStorage.removeItem('vendas-agil-user');
-    } finally {
-        setIsLoading(false);
-    }
+    };
+    
+    rehydrateUser();
   }, []);
 
-  const login = (email: string, password: string): boolean => {
-    const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+  const login = async (email: string, password: string): Promise<boolean> => {
+    const foundUser = await getUserByEmail(email);
 
-    if (foundUser && foundUser.status === 'ativo') {
+    // IMPORTANT: Never check passwords in plaintext in a real app.
+    // This should be a call to a server endpoint that securely compares a hashed password.
+    if (foundUser && foundUser.password === password && foundUser.status === 'ativo') {
       const userToStore = { ...foundUser };
-      // In a real app, NEVER store the password, even in a mock.
       // @ts-ignore
       delete userToStore.password;
 
       setUser(userToStore);
-      localStorage.setItem('vendas-agil-user', JSON.stringify(userToStore));
+      // Only store minimal, non-sensitive info in localStorage
+      localStorage.setItem('vendas-agil-user', JSON.stringify({ id: userToStore.id }));
       return true;
     }
     return false;

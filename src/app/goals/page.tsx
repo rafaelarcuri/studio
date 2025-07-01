@@ -5,7 +5,6 @@ import * as React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Edit, Search } from 'lucide-react';
@@ -54,29 +53,32 @@ const editFormSchema = z.object({
 const formatCurrency = (value: number) => `R$ ${value.toLocaleString('pt-BR')}`;
 
 export default function GoalsPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   const [salesPeople, setSalesPeople] = React.useState<SalesPerson[]>([]);
+  const [isLoadingData, setIsLoadingData] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [editingUser, setEditingUser] = React.useState<SalesPerson | null>(null);
 
-  useEffect(() => {
-    if (!isLoading) {
-      setSalesPeople(getSalesData());
-    }
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (isLoading) return;
+  React.useEffect(() => {
+    if (isAuthLoading) return;
     if (!user) {
       router.replace('/login');
     } else if (user.role !== 'gerente') {
       router.replace(`/sales/${user.salesPersonId}`);
+    } else {
+        const fetchSalesData = async () => {
+            setIsLoadingData(true);
+            const data = await getSalesData();
+            setSalesPeople(data);
+            setIsLoadingData(false);
+        };
+        fetchSalesData();
     }
-  }, [user, isLoading, router]);
+  }, [user, isAuthLoading, router]);
   
   const form = useForm<z.infer<typeof editFormSchema>>({
     resolver: zodResolver(editFormSchema),
@@ -94,12 +96,12 @@ export default function GoalsPage() {
     setIsEditDialogOpen(true);
   };
   
-  const onSubmit = (values: z.infer<typeof editFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof editFormSchema>) => {
     if (editingUser) {
         const newPositivations = { ...editingUser.positivations, target: values.positivationsTarget };
         const newNewRegistrations = { ...editingUser.newRegistrations, target: values.newRegistrationsTarget };
 
-        updateSalesPersonData(editingUser.id, {
+        await updateSalesPersonData(editingUser.id, {
             target: values.target,
             quarterlyTarget: values.quarterlyTarget,
             margin: values.margin,
@@ -137,9 +139,9 @@ export default function GoalsPage() {
   }, [salesPeople, searchTerm]);
 
 
-  if (isLoading || !user || user.role !== 'gerente') {
+  if (isAuthLoading || isLoadingData || !user || user.role !== 'gerente') {
     return (
-      <div className="p-8 max-w-4xl mx-auto space-y-8">
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
         <Skeleton className="h-12 w-2/3" />
         <Skeleton className="h-96 w-full" />
       </div>

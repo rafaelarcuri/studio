@@ -1,127 +1,103 @@
-// NOTE: This is a mock user database for prototyping purposes.
-// In a real-world application, you would NEVER store passwords in plaintext.
-// They should be securely hashed and stored in a database.
+'use server';
+
+import { db } from '@/lib/firebase';
 
 export type User = {
   id: number;
+  docId: string; // Firestore document ID
   name: string;
   email: string;
-  password?: string; // This is insecure and only for the prototype
+  password?: string; // Should be handled securely, only used for login check
   role: 'vendedor' | 'gerente';
   salesPersonId?: number; // Links to the ID in sales.ts
-  position: string; // "Cargo", e.g., "Vendedor Pleno", "Gerente de Vendas"
-  team: string; // "Time/setor", e.g., "Varejo", "Corporativo"
+  position: string;
+  team: string;
   status: 'ativo' | 'inativo';
   avatar?: string;
 };
 
-export let users: User[] = [
-  {
-    id: 102,
-    name: 'Desenvolvedor',
-    email: 'amaffei@magnumtires.com.br',
-    password: '123456',
-    role: 'gerente',
-    position: 'Administrador',
-    team: 'TI',
-    status: 'ativo',
-    avatar: 'https://placehold.co/100x100.png',
-  },
-  {
-    id: 101,
-    name: 'Gerente de Vendas',
-    email: 'gerente@vendasagil.com',
-    password: 'password',
-    role: 'gerente',
-    position: 'Gerente de Vendas',
-    team: 'Gestão',
-    status: 'ativo',
-    avatar: 'https://placehold.co/100x100.png',
-  },
-  {
-    id: 1, // Must match an ID in sales.ts
-    name: 'Ana Beatriz',
-    email: 'ana@vendasagil.com',
-    password: 'password',
-    role: 'vendedor',
-    salesPersonId: 1,
-    position: 'Vendedora Pleno',
-    team: 'Varejo SP',
-    status: 'ativo',
-    avatar: 'https://placehold.co/100x100.png',
-  },
-  {
-    id: 2, // Must match an ID in sales.ts
-    name: 'Carlos Silva',
-    email: 'carlos@vendasagil.com',
-    password: 'password',
-    role: 'vendedor',
-    salesPersonId: 2,
-    position: 'Vendedor Sênior',
-    team: 'Varejo RJ',
-    status: 'ativo',
-    avatar: 'https://placehold.co/100x100.png',
-  },
-  {
-    id: 3, // Must match an ID in sales.ts
-    name: 'Daniela Costa',
-    email: 'daniela@vendasagil.com',
-    password: 'password',
-    role: 'vendedor',
-    salesPersonId: 3,
-    position: 'Vendedora Júnior',
-    team: 'Varejo SP',
-    status: 'inativo',
-    avatar: 'https://placehold.co/100x100.png',
-  },
-  {
-    id: 4, // Must match an ID in sales.ts
-    name: 'Eduardo Lima',
-    email: 'eduardo@vendasagil.com',
-    password: 'password',
-    role: 'vendedor',
-    salesPersonId: 4,
-    position: 'Vendedor Pleno',
-    team: 'Varejo MG',
-    status: 'ativo',
-    avatar: 'https://placehold.co/100x100.png',
-  },
-];
-
-export const addUser = (newUser: User) => {
-    const existingUser = users.find(u => u.email.toLowerCase() === newUser.email.toLowerCase());
-    if (existingUser) {
-        console.error("User with this email already exists.");
-        return;
+export const getUsers = async (): Promise<User[]> => {
+    try {
+        const snapshot = await db.collection('users').get();
+        if (snapshot.empty) return [];
+        const users: User[] = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            // Exclude password from general user fetches
+            delete data.password;
+            users.push({ docId: doc.id, ...data } as User);
+        });
+        return users;
+    } catch (error) {
+        console.error("Error fetching users: ", error);
+        return [];
     }
-    users.push(newUser);
+}
+
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+     try {
+        const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
+        if (snapshot.empty) return null;
+        const doc = snapshot.docs[0];
+        return { docId: doc.id, ...doc.data() } as User;
+    } catch (error) {
+        console.error(`Error fetching user by email ${email}: `, error);
+        return null;
+    }
+}
+
+export const getUserById = async (id: number): Promise<User | null> => {
+     try {
+        const snapshot = await db.collection('users').where('id', '==', id).limit(1).get();
+        if (snapshot.empty) return null;
+        const doc = snapshot.docs[0];
+        return { docId: doc.id, ...doc.data() } as User;
+    } catch (error) {
+        console.error(`Error fetching user by id ${id}: `, error);
+        return null;
+    }
+}
+
+export const addUser = async (newUser: Omit<User, 'docId'>): Promise<string | null> => {
+    try {
+        // Check if user already exists
+        const existingUser = await getUserByEmail(newUser.email);
+        if (existingUser) {
+            console.error("User with this email already exists.");
+            throw new Error("User with this email already exists.");
+        }
+        const docRef = await db.collection('users').add(newUser);
+        return docRef.id;
+    } catch (error) {
+        console.error("Error adding user: ", error);
+        return null;
+    }
 };
 
-
-// In a real app, this function would make an API call to your backend.
-// The backend would handle the database update and log the change.
-export const updateUser = (userId: number, updatedData: Partial<Omit<User, 'id' | 'password'>>) => {
-    const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-        const originalUser = { ...users[userIndex] };
-        users[userIndex] = { ...users[userIndex], ...updatedData };
+export const updateUser = async (userId: number, updatedData: Partial<Omit<User, 'id' | 'docId' | 'password'>>): Promise<boolean> => {
+    try {
+        const snapshot = await db.collection('users').where('id', '==', userId).limit(1).get();
+        if (snapshot.empty) return false;
         
-        // Mock logging the change
-        console.log(`[LOG] User ${userId} updated. By: Admin. Timestamp: ${new Date().toISOString()}. From: ${JSON.stringify(originalUser)} To: ${JSON.stringify(users[userIndex])}`);
+        const docId = snapshot.docs[0].id;
+        await db.collection('users').doc(docId).update(updatedData);
         return true;
+    } catch (error) {
+        console.error(`Error updating user ${userId}: `, error);
+        return false;
     }
-    return false;
 };
 
-// In a real app, this function would make an API call to your backend.
-export const setUserStatus = (userId: number, status: 'ativo' | 'inativo') => {
-    const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-        users[userIndex].status = status;
+export const setUserStatus = async (userId: number, status: 'ativo' | 'inativo'): Promise<boolean> => {
+    try {
+        const snapshot = await db.collection('users').where('id', '==', userId).limit(1).get();
+        if (snapshot.empty) return false;
 
-        // Mock logging the change
-        console.log(`[LOG] User ${userId} status changed to ${status}. By: Admin. Timestamp: ${new Date().toISOString()}.`);
+        const docId = snapshot.docs[0].id;
+        await db.collection('users').doc(docId).update({ status });
         return true;
+    } catch (error) {
+        console.error(`Error setting status for user ${userId}: `, error);
+        return false;
     }
-    return false;
 };

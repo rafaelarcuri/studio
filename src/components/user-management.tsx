@@ -19,7 +19,7 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 
-import { users as initialUsers, updateUser, setUserStatus, type User } from '@/data/users';
+import { updateUser, setUserStatus, type User, getUsers } from '@/data/users';
 import { updateSalesPersonData } from '@/data/sales';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -71,6 +71,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from 'next/navigation';
+import { Skeleton } from './ui/skeleton';
 
 const editFormSchema = z.object({
   name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
@@ -82,7 +83,8 @@ const editFormSchema = z.object({
 });
 
 export default function UserManagement() {
-  const [users, setUsers] = React.useState<User[]>(initialUsers);
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [filters, setFilters] = React.useState({ role: 'all', status: 'all' });
 
@@ -95,6 +97,16 @@ export default function UserManagement() {
   const { toast } = useToast();
   const router = useRouter();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+        setIsLoading(true);
+        const data = await getUsers();
+        setUsers(data);
+        setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   const form = useForm<z.infer<typeof editFormSchema>>({
     resolver: zodResolver(editFormSchema),
@@ -133,10 +145,10 @@ export default function UserManagement() {
     setIsStatusDialogOpen(true);
   };
   
-  const confirmStatusChange = () => {
+  const confirmStatusChange = async () => {
     if (statusChangeUser) {
         const newStatus = statusChangeUser.status === 'ativo' ? 'inativo' : 'ativo';
-        setUserStatus(statusChangeUser.id, newStatus);
+        await setUserStatus(statusChangeUser.id, newStatus);
         setUsers(prevUsers =>
             prevUsers.map(u =>
                 u.id === statusChangeUser.id ? { ...u, status: newStatus } : u
@@ -151,13 +163,13 @@ export default function UserManagement() {
     setStatusChangeUser(null);
   };
 
-  const onSubmit = (values: z.infer<typeof editFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof editFormSchema>) => {
     if (editingUser) {
         const updatedUserData: Partial<User> = { ...values };
-        updateUser(editingUser.id, updatedUserData);
+        await updateUser(editingUser.id, updatedUserData);
 
         if(editingUser.role === 'vendedor' && editingUser.salesPersonId) {
-            updateSalesPersonData(editingUser.salesPersonId, {
+            await updateSalesPersonData(editingUser.salesPersonId, {
                 name: values.name,
                 avatar: values.avatar
             });
@@ -267,70 +279,79 @@ export default function UserManagement() {
           </div>
         </div>
         <div className="overflow-x-auto">
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Cargo</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Função</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                    <TableCell>
-                        <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <div className="font-medium">{user.name}</div>
-                                <div className="text-sm text-muted-foreground">{user.email}</div>
-                            </div>
-                        </div>
-                    </TableCell>
-                    <TableCell>{user.position}</TableCell>
-                    <TableCell>{user.team}</TableCell>
-                    <TableCell className="capitalize">{user.role}</TableCell>
-                    <TableCell>
-                        <Badge variant={user.status === 'ativo' ? 'default' : 'destructive'} className={user.status === 'ativo' ? 'bg-green-600' : ''}>
-                            {user.status}
-                        </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                        <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Abrir menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => handleEdit(user)}>
-                                <Edit className="mr-2 h-4 w-4" /> Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {user.status === 'ativo' ? (
-                                <DropdownMenuItem onSelect={() => handleStatusChange(user)} className="text-red-600 focus:text-red-600">
-                                    <UserX className="mr-2 h-4 w-4" /> Desativar
-                                </DropdownMenuItem>
-                            ) : (
-                                <DropdownMenuItem onSelect={() => handleStatusChange(user)} className="text-green-600 focus:text-green-600">
-                                    <UserCheck className="mr-2 h-4 w-4" /> Ativar
-                                </DropdownMenuItem>
-                            )}
-                        </DropdownMenuContent>
-                        </DropdownMenu>
-                    </TableCell>
+            {isLoading ? (
+                <div className="space-y-2">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                </div>
+            ) : (
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Cargo</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Função</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                    {filteredUsers.map((user) => (
+                        <TableRow key={user.id}>
+                        <TableCell>
+                            <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10">
+                                    <AvatarImage src={user.avatar} alt={user.name} />
+                                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <div className="font-medium">{user.name}</div>
+                                    <div className="text-sm text-muted-foreground">{user.email}</div>
+                                </div>
+                            </div>
+                        </TableCell>
+                        <TableCell>{user.position}</TableCell>
+                        <TableCell>{user.team}</TableCell>
+                        <TableCell className="capitalize">{user.role}</TableCell>
+                        <TableCell>
+                            <Badge variant={user.status === 'ativo' ? 'default' : 'destructive'} className={user.status === 'ativo' ? 'bg-green-600' : ''}>
+                                {user.status}
+                            </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                            <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Abrir menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                <DropdownMenuItem onSelect={() => handleEdit(user)}>
+                                    <Edit className="mr-2 h-4 w-4" /> Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {user.status === 'ativo' ? (
+                                    <DropdownMenuItem onSelect={() => handleStatusChange(user)} className="text-red-600 focus:text-red-600">
+                                        <UserX className="mr-2 h-4 w-4" /> Desativar
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <DropdownMenuItem onSelect={() => handleStatusChange(user)} className="text-green-600 focus:text-green-600">
+                                        <UserCheck className="mr-2 h-4 w-4" /> Ativar
+                                    </DropdownMenuItem>
+                                )}
+                            </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            )}
         </div>
 
         {/* Edit User Dialog */}

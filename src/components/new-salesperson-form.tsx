@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { addSalesPerson } from "@/data/sales"
-import { addUser, users } from "@/data/users"
+import { addUser, getUserByEmail } from "@/data/users"
 import type { User } from "@/data/users"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
@@ -32,8 +32,6 @@ const formSchema = z.object({
   }),
   email: z.string().email({
       message: "Por favor, insira um e-mail válido."
-  }).refine(email => !users.some(user => user.email === email), {
-      message: "Este e-mail já está em uso."
   }),
   password: z.string().min(6, {
       message: "A senha deve ter pelo menos 6 caracteres."
@@ -61,6 +59,7 @@ const formSchema = z.object({
 export default function NewSalespersonForm() {
     const router = useRouter()
     const { toast } = useToast()
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -92,52 +91,63 @@ export default function NewSalespersonForm() {
     };
 
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        let newUser: User;
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        setIsSubmitting(true);
 
-        if (values.role === 'vendedor') {
-            const newSalesPersonId = addSalesPerson({
+        try {
+            // Check if user already exists
+            const existingUser = await getUserByEmail(values.email);
+            if (existingUser) {
+                form.setError("email", { message: "Este e-mail já está em uso." });
+                setIsSubmitting(false);
+                return;
+            }
+
+            const nextId = Date.now(); // Simple way to generate a unique numeric ID for this context
+
+            if (values.role === 'vendedor') {
+                await addSalesPerson({
+                    id: nextId,
+                    name: values.name,
+                    target: values.target!,
+                    margin: values.margin!,
+                    positivationsTarget: values.positivationsTarget!,
+                    newRegistrationsTarget: values.newRegistrationsTarget!,
+                    avatar: values.avatar
+                });
+            }
+            
+            const newUser: Omit<User, 'docId'> = {
+                id: nextId,
                 name: values.name,
-                target: values.target!,
-                margin: values.margin!,
-                positivationsTarget: values.positivationsTarget!,
-                newRegistrationsTarget: values.newRegistrationsTarget!,
-                avatar: values.avatar
+                email: values.email.toLowerCase(),
+                password: values.password, // In a real app, this should be hashed on the server
+                role: values.role,
+                salesPersonId: values.role === 'vendedor' ? nextId : undefined,
+                position: values.position,
+                team: values.team,
+                status: 'ativo',
+                avatar: values.avatar,
+            };
+
+            await addUser(newUser);
+
+            toast({
+                title: "Usuário Cadastrado!",
+                description: `${values.name} foi adicionado ao sistema como ${values.role}.`,
             });
-            newUser = {
-                id: newSalesPersonId,
-                name: values.name,
-                email: values.email,
-                password: values.password,
-                role: 'vendedor',
-                salesPersonId: newSalesPersonId,
-                position: values.position,
-                team: values.team,
-                status: 'ativo',
-                avatar: values.avatar,
-            };
-        } else { // Gerente
-            const newUserId = Math.max(...users.map(u => u.id)) + 1;
-             newUser = {
-                id: newUserId,
-                name: values.name,
-                email: values.email,
-                password: values.password,
-                role: 'gerente',
-                position: values.position,
-                team: values.team,
-                status: 'ativo',
-                avatar: values.avatar,
-            };
+            router.push('/users')
+
+        } catch (error: any) {
+            console.error("Failed to create user:", error);
+            toast({
+                variant: "destructive",
+                title: "Erro ao Cadastrar",
+                description: error.message || "Não foi possível criar o usuário. Tente novamente.",
+            });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        addUser(newUser);
-
-        toast({
-            title: "Usuário Cadastrado!",
-            description: `${values.name} foi adicionado ao sistema como ${values.role}.`,
-        });
-        router.push('/users')
     }
 
     return (
@@ -324,7 +334,9 @@ export default function NewSalespersonForm() {
                         )}
                     </CardContent>
                     <CardFooter>
-                         <Button type="submit">Salvar Cadastro</Button>
+                         <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Salvando..." : "Salvar Cadastro"}
+                        </Button>
                     </CardFooter>
                 </form>
             </Form>

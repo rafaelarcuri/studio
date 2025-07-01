@@ -33,13 +33,21 @@ type PreviewData = {
 const formatCurrency = (value: number) => `R$ ${value.toLocaleString('pt-BR')}`;
 
 export default function GoalUploader() {
-  const [salesPeople] = React.useState<SalesPerson[]>(() => getSalesData());
+  const [salesPeople, setSalesPeople] = React.useState<SalesPerson[]>([]);
   const [file, setFile] = React.useState<File | null>(null);
   const [previewData, setPreviewData] = React.useState<PreviewData[]>([]);
   const [errors, setErrors] = React.useState<string[]>([]);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    const fetchInitialData = async () => {
+        const data = await getSalesData();
+        setSalesPeople(data);
+    };
+    fetchInitialData();
+  }, []);
 
   const handleFileChange = (selectedFile: File | null) => {
     if (!selectedFile) return;
@@ -102,7 +110,7 @@ export default function GoalUploader() {
     });
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (previewData.length === 0) return;
     
     const updates = previewData.map(item => ({
@@ -111,7 +119,7 @@ export default function GoalUploader() {
         quarterlyTarget: item.newQuarterly,
     }));
 
-    bulkUpdateSalesTargets(updates);
+    await bulkUpdateSalesTargets(updates);
 
     toast({
         title: 'Metas Atualizadas!',

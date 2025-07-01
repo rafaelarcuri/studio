@@ -6,9 +6,9 @@ import { Bar, BarChart, CartesianGrid, LabelList, Legend, Pie, PieChart, Respons
 import { ChevronDown, Download, Users, CheckCircle, ListTodo, Hourglass } from 'lucide-react';
 
 import type { Task } from '@/data/tasks';
-import { initialTasks } from '@/data/tasks';
+import { getTasks } from '@/data/tasks';
 import type { User } from '@/data/users';
-import { users } from '@/data/users';
+import { getUsers } from '@/data/users';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from './ui/skeleton';
 
 
 type UserAnalytics = {
@@ -43,11 +44,26 @@ const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3
 
 
 export default function AnalyticsDashboard() {
-  const [tasks, setTasks] = React.useState<Task[]>(initialTasks);
-  const teamUsers = users.filter(u => u.role === 'vendedor');
+  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+        setIsLoading(true);
+        const [fetchedTasks, fetchedUsers] = await Promise.all([
+            getTasks(),
+            getUsers()
+        ]);
+        setTasks(fetchedTasks);
+        setUsers(fetchedUsers.filter(u => u.role === 'vendedor'));
+        setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   const analyticsData = React.useMemo<UserAnalytics[]>(() => {
-    return teamUsers.map(user => {
+    return users.map(user => {
       const userTasks = tasks.filter(task => task.assigneeId === user.id);
       const assignedTasks = userTasks.length;
       const completedTasks = userTasks.filter(t => t.status === 'concluida').length;
@@ -62,7 +78,7 @@ export default function AnalyticsDashboard() {
         efficiency,
       };
     });
-  }, [tasks, teamUsers]);
+  }, [tasks, users]);
 
   const teamTotals = React.useMemo(() => {
     const totalAssigned = analyticsData.reduce((sum, data) => sum + data.assignedTasks, 0);
@@ -87,6 +103,27 @@ export default function AnalyticsDashboard() {
   }, [tasks]);
 
   const sortedByEfficiency = [...analyticsData].sort((a, b) => b.efficiency - a.efficiency);
+
+  if (isLoading) {
+    return (
+        <div className="space-y-6">
+            <div className="grid grid-cols-4 gap-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+            </div>
+            <div className="grid grid-cols-5 gap-6">
+                <Skeleton className="h-96 w-full col-span-3" />
+                <Skeleton className="h-64 w-full col-span-2" />
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+                <Skeleton className="h-80 w-full" />
+                <Skeleton className="h-80 w-full" />
+            </div>
+        </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

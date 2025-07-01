@@ -1,6 +1,9 @@
+'use server';
+
+import { db } from '@/lib/firebase';
 
 export type Integration = {
-  id: string;
+  id: string; // This will be the document ID in Firestore
   name: string;
   description: string;
   logo: string;
@@ -8,64 +11,40 @@ export type Integration = {
   apiKey: string;
 };
 
-let integrations: Integration[] = [
-  {
-    id: 'erp-senior',
-    name: 'ERP Senior',
-    description: 'Sincroniza dados de clientes, produtos e pedidos entre o Vendas Ágil e o seu sistema ERP Senior.',
-    logo: 'https://placehold.co/100x100.png',
-    status: 'ativo',
-    apiKey: 'senior_prod_sk_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
-  },
-  {
-    id: 'salesforce-crm',
-    name: 'Salesforce CRM',
-    description: 'Mantenha os leads, contatos e oportunidades sincronizados com a maior plataforma de CRM do mundo.',
-    logo: 'https://placehold.co/100x100.png',
-    status: 'inativo',
-    apiKey: 'sf_live_x0y9z8w7v6u5t4s3r2q1p0o9n8m7l6k5',
-  },
-  {
-    id: 'rd-station',
-    name: 'RD Station Marketing',
-    description: 'Envie leads gerados em suas campanhas de marketing diretamente para a prospecção da sua equipe de vendas.',
-    logo: 'https://placehold.co/100x100.png',
-    status: 'ativo',
-    apiKey: 'rdstation_live_abc123def456ghi789jkl0mno',
-  },
-  {
-    id: 'google-cloud',
-    name: 'Google Cloud',
-    description: 'Utilize os serviços de IA e armazenamento do Google Cloud para potencializar suas análises e dados.',
-    logo: 'https://placehold.co/100x100.png',
-    status: 'inativo',
-    apiKey: '',
-  },
-];
-
-// Get all integrations
-export const getIntegrations = (): Integration[] => {
-  return JSON.parse(JSON.stringify(integrations));
+// Get all integrations from Firestore
+export const getIntegrations = async (): Promise<Integration[]> => {
+  try {
+    const snapshot = await db.collection('integrations').get();
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Integration));
+  } catch (error) {
+    console.error("Error fetching integrations: ", error);
+    return [];
+  }
 };
 
-// Update an integration's API key
-export const updateIntegrationApiKey = (id: string, apiKey: string) => {
-  const index = integrations.findIndex((i) => i.id === id);
-  if (index !== -1) {
-    integrations[index].apiKey = apiKey;
+// Update an integration's API key in Firestore
+export const updateIntegrationApiKey = async (id: string, apiKey: string): Promise<boolean> => {
+  try {
+    await db.collection('integrations').doc(id).update({ apiKey });
     console.log(`[LOG] API Key for ${id} updated.`);
     return true;
+  } catch (error) {
+    console.error(`Error updating API key for integration ${id}: `, error);
+    return false;
   }
-  return false;
 };
 
-// Update an integration's status
-export const updateIntegrationStatus = (id: string, status: 'ativo' | 'inativo') => {
-  const index = integrations.findIndex((i) => i.id === id);
-  if (index !== -1) {
-    integrations[index].status = status;
+// Update an integration's status in Firestore
+export const updateIntegrationStatus = async (id: string, status: 'ativo' | 'inativo'): Promise<boolean> => {
+  try {
+    await db.collection('integrations').doc(id).update({ status });
     console.log(`[LOG] Status for ${id} changed to ${status}.`);
     return true;
+  } catch (error) {
+    console.error(`Error updating status for integration ${id}: `, error);
+    return false;
   }
-  return false;
 };

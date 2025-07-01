@@ -19,12 +19,14 @@ import {
 import { PieChart, ListFilter, Calendar } from 'lucide-react';
 
 import type { Task, Status } from '@/data/tasks';
-import { initialTasks } from '@/data/tasks';
-import { users } from '@/data/users';
+import { getTasks, updateTask } from '@/data/tasks';
+import type { User } from '@/data/users';
+import { getUsers } from '@/data/users';
 import { KanbanColumn } from '@/components/kanban-column';
 import { KanbanCard } from '@/components/kanban-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from './ui/skeleton';
 
 const initialColumns: { id: Status; title: string }[] = [
   { id: 'pendente', title: 'Pendentes' },
@@ -33,8 +35,24 @@ const initialColumns: { id: Status; title: string }[] = [
 ];
 
 export default function KanbanBoard() {
-  const [tasks, setTasks] = React.useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [activeTask, setActiveTask] = React.useState<Task | null>(null);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+        setIsLoading(true);
+        const [fetchedTasks, fetchedUsers] = await Promise.all([
+            getTasks(),
+            getUsers()
+        ]);
+        setTasks(fetchedTasks);
+        setUsers(fetchedUsers);
+        setIsLoading(false);
+    };
+    fetchData();
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -57,22 +75,24 @@ export default function KanbanBoard() {
     setActiveTask(null);
 
     if (over && active.id !== over.id) {
-      setTasks((items) => {
-        const activeIndex = items.findIndex((item) => item.id === active.id);
-        const overId = over.id;
-        
-        const overIsColumn = initialColumns.some(c => c.id === overId);
+      const activeIndex = tasks.findIndex((item) => item.id === active.id);
+      const overId = over.id;
+      
+      const overIsColumn = initialColumns.some(c => c.id === overId);
 
-        if (overIsColumn) {
-           const newStatus = overId as Status;
-           items[activeIndex].status = newStatus;
-           return [...items];
-        }
-
-        // This part is for reordering within a column, which we don't implement in this iteration
-        // to keep drag-to-change-status simple.
-        return items;
-      });
+      if (overIsColumn) {
+          const newStatus = overId as Status;
+          if (tasks[activeIndex].status !== newStatus) {
+            const updatedTask = { ...tasks[activeIndex], status: newStatus };
+            // Update local state for immediate feedback
+            setTasks(items => {
+                items[activeIndex] = updatedTask;
+                return [...items];
+            });
+            // Persist change to the database
+            updateTask(active.id as string, { status: newStatus });
+          }
+      }
     }
   };
   
@@ -82,6 +102,26 @@ export default function KanbanBoard() {
 
   const getAssignee = (assigneeId: number) => {
     return users.find(u => u.id === assigneeId);
+  }
+
+  if (isLoading) {
+    return (
+        <div className="flex flex-col flex-grow overflow-hidden">
+            <div className="shrink-0 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                </div>
+            </div>
+            <div className="grid grid-cols-3 gap-6 h-full">
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+            </div>
+        </div>
+    )
   }
 
   return (

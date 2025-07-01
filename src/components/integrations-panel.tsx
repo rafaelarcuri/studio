@@ -26,14 +26,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from './ui/skeleton';
 
 export default function IntegrationsPanel() {
-  const [integrations, setIntegrations] = React.useState<Integration[]>(getIntegrations);
+  const [integrations, setIntegrations] = React.useState<Integration[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedIntegration, setSelectedIntegration] = React.useState<Integration | null>(null);
   const [apiKey, setApiKey] = React.useState('');
   const [showApiKey, setShowApiKey] = React.useState(false);
   const { toast } = useToast();
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+        setIsLoading(true);
+        const data = await getIntegrations();
+        setIntegrations(data);
+        setIsLoading(false);
+    }
+    fetchData();
+  }, []);
 
   const handleConfigure = (integration: Integration) => {
     setSelectedIntegration(integration);
@@ -41,13 +53,14 @@ export default function IntegrationsPanel() {
     setIsModalOpen(true);
   };
   
-  const handleToggleStatus = (integrationId: string) => {
+  const handleToggleStatus = async (integrationId: string) => {
     const integration = integrations.find(i => i.id === integrationId);
     if (!integration) return;
 
     const newStatus = integration.status === 'ativo' ? 'inativo' : 'ativo';
-    updateIntegrationStatus(integrationId, newStatus);
-    setIntegrations(getIntegrations());
+    await updateIntegrationStatus(integrationId, newStatus);
+    const updatedIntegrations = await getIntegrations();
+    setIntegrations(updatedIntegrations);
 
     toast({
         title: `Integração ${newStatus === 'ativo' ? 'Ativada' : 'Desativada'}`,
@@ -55,11 +68,12 @@ export default function IntegrationsPanel() {
     });
   }
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (!selectedIntegration) return;
 
-    updateIntegrationApiKey(selectedIntegration.id, apiKey);
-    setIntegrations(getIntegrations());
+    await updateIntegrationApiKey(selectedIntegration.id, apiKey);
+    const updatedIntegrations = await getIntegrations();
+    setIntegrations(updatedIntegrations);
     setIsModalOpen(false);
     setSelectedIntegration(null);
     setShowApiKey(false);
@@ -78,6 +92,17 @@ export default function IntegrationsPanel() {
       className: 'bg-green-600 text-white',
     });
   };
+
+  if (isLoading) {
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-48 w-full" />
+        </div>
+    )
+  }
 
   return (
     <>

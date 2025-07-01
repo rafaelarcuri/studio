@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { SalespersonCustomerList } from "./salesperson-customer-list";
 import { GoalAchievementCard } from "./goal-achievement-card";
 import { IndividualKpiPanel } from "./individual-kpi-panel";
+import { Skeleton } from "./ui/skeleton";
 
 interface IndividualDashboardProps {
     salespersonId: number;
@@ -22,15 +23,41 @@ interface IndividualDashboardProps {
 export default function IndividualDashboard({ salespersonId }: IndividualDashboardProps) {
     const { logout, user } = useAuth();
     const router = useRouter();
-    const [salesPerson, setSalesPerson] = useState<SalesPerson | undefined>(() => getSalesPersonById(salespersonId));
+    const [salesPerson, setSalesPerson] = useState<SalesPerson | undefined>();
+    const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
-        setSalesPerson(getSalesPersonById(salespersonId));
+        const fetchData = async () => {
+            setIsLoading(true);
+            const data = await getSalesPersonById(salespersonId);
+            setSalesPerson(data);
+            setIsLoading(false);
+        }
+        if (salespersonId) {
+            fetchData();
+        }
     }, [salespersonId]);
 
     const handleLogout = () => {
         logout();
         router.push('/login');
+    }
+
+    if (isLoading) {
+        return (
+             <div className="p-8 space-y-8">
+                <Skeleton className="h-12 w-1/3" />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-1 space-y-6">
+                        <Skeleton className="h-96 w-full" />
+                    </div>
+                    <div className="lg:col-span-2 space-y-6">
+                         <Skeleton className="h-64 w-full" />
+                         <Skeleton className="h-64 w-full" />
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     if (!salesPerson) {
