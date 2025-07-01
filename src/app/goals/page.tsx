@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Edit, Search } from 'lucide-react';
+import { Edit, PlusCircle, Search, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -151,16 +151,10 @@ export default function GoalsPage() {
   return (
     <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <header className="flex items-center gap-4 mb-8">
-        <Button asChild variant="outline" size="icon" className="shrink-0">
-          <Link href="/">
-            <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Voltar</span>
-          </Link>
-        </Button>
         <div>
-          <h1 className="text-3xl font-bold">Alteração de Metas de Colaboradores</h1>
+          <h1 className="text-3xl font-bold">Gestão de Metas</h1>
           <p className="text-muted-foreground">
-            Modifique metas existentes de forma individual.
+            Modifique metas existentes de forma individual ou carregue em massa.
           </p>
         </div>
       </header>
@@ -183,6 +177,12 @@ export default function GoalsPage() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
+                 <Button asChild>
+                    <Link href="/goals/upload">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Carregar em Massa
+                    </Link>
+                </Button>
             </div>
             <div className="overflow-x-auto">
                 <Table>

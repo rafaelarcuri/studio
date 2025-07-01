@@ -3,9 +3,6 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import KanbanBoard from '@/components/kanban-board';
@@ -37,14 +34,8 @@ export default function TasksPage() {
   }
 
   return (
-    <main className="p-4 sm:p-6 lg:p-8 flex flex-col h-screen overflow-hidden bg-muted/30">
+    <main className="p-4 sm:p-6 lg:p-8 flex flex-col h-screen overflow-hidden">
         <header className="flex items-center gap-4 mb-6 shrink-0">
-            <Button asChild variant="outline" size="icon" className="shrink-0">
-                <Link href="/">
-                    <ChevronLeft className="h-4 w-4" />
-                    <span className="sr-only">Voltar</span>
-                </Link>
-            </Button>
             <div>
                 <h1 className="text-3xl font-bold">Quadro de Tarefas</h1>
                 <p className="text-muted-foreground">
