@@ -99,7 +99,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild isActive={pathname === '/tasks'}>
-                            <Link href="/tasks"><ClipboardList />Quadro Kanban</Link>
+                            <Link href="/tasks"><ClipboardList />Minhas Tarefas</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
