@@ -245,7 +245,7 @@ export default function WhatsAppChat() {
                                 <Button variant="ghost" size="icon"><MoreVertical className="h-5 w-5" /></Button>
                             </div>
                         </header>
-                        <ScrollArea className="flex-1 p-4 bg-repeat" style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')"}}>
+                        <ScrollArea className="flex-1 p-4 bg-muted/20">
                            {selectedChat.messages.map(msg => <ChatBubble key={msg.id} message={msg} />)}
                            <div ref={messagesEndRef} />
                         </ScrollArea>
