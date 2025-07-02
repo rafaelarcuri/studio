@@ -29,6 +29,7 @@ import {
   ListChecks,
   MessageSquare,
   KanbanSquare,
+  Network,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -130,6 +131,11 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild isActive={pathname.startsWith('/users') || pathname.startsWith('/sales/new')}>
                             <Link href="/users"><Users />Gestão de Usuários</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                     <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname.startsWith('/organization')}>
+                            <Link href="/organization"><Network />Organograma</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
