@@ -1,113 +1,252 @@
-
 'use client';
 
 import * as React from 'react';
-import { getOrganizationTree, type OrganizationNode } from '@/data/organization';
-import { Skeleton } from './ui/skeleton';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import type { Identifier } from 'dnd-core';
+
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Card, CardContent } from './ui/card';
-import { CheckCircle2, Phone, XCircle, MoreVertical } from 'lucide-react';
 import { Button } from './ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Card } from './ui/card';
+import { Skeleton } from './ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import type { User } from '@/data/users';
+import { cn } from '@/lib/utils';
+import { PlusCircle } from 'lucide-react';
 
-const UserCard = ({ user }: { user: OrganizationNode }) => {
-    return (
-        <Card className="min-w-72 hover:shadow-lg transition-shadow">
-            <CardContent className="p-3 flex items-center gap-4">
-                <div className="relative">
-                    <Avatar className="h-12 w-12">
-                        <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    {user.status === 'ativo' ? (
-                        <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-card" title="Online" />
-                    ) : (
-                        <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-gray-400 ring-2 ring-card" title="Offline" />
-                    )}
-                </div>
-                <div className="flex-1">
-                    <p className="font-bold">{user.name}</p>
-                    <p className="text-sm text-muted-foreground">{user.position}</p>
-                    {user.whatsAppNumber && (
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                           {user.whatsAppNumber.status === 'online' ? <CheckCircle2 className="h-3 w-3 text-green-500"/> : <XCircle className="h-3 w-3 text-red-500"/> }
-                           <Phone className="h-3 w-3" />
-                           <span className="truncate" title={user.whatsAppNumber.name}>{user.whatsAppNumber.name}</span>
-                        </div>
-                    )}
-                </div>
-                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
-                        <DropdownMenuItem>Editar</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </CardContent>
-        </Card>
-    )
-}
+type Team = {
+    id: string;
+    nome: string;
+    gestor_id: number;
+    gestor_master_id: number;
+};
 
-const TreeNode = ({ node }: { node: OrganizationNode }) => {
-  const hasChildren = node.children && node.children.length > 0;
+const ItemTypes = {
+  USER: 'user',
+};
+
+const DraggableUserCard = ({ user }: { user: User }) => {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.USER,
+    item: { user },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
   return (
-    <li className="relative">
-      <div className="flex items-center">
-        <UserCard user={node} />
+    <div
+      ref={drag}
+      className="cursor-move"
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+    >
+      <Card className="p-2 mb-2 text-center">
+        <Avatar className="w-12 h-12 mx-auto">
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <p className="font-bold mt-2 text-sm">{user.name}</p>
+        <p className="text-xs text-muted-foreground">{user.position}</p>
+        <span className={cn('text-xs', user.online ? 'text-green-600' : 'text-red-500')}>
+            {user.online ? 'Online' : 'Offline'}
+        </span>
+      </Card>
+    </div>
+  );
+};
+
+const TeamNode = ({ gestor, membros, onDropUser, equipeId }: { gestor: User; membros: User[]; onDropUser: (user: User, novaEquipeId: string) => void; equipeId: string }) => {
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: ItemTypes.USER,
+    drop: (item: { user: User }) => onDropUser(item.user, equipeId),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }), [gestor, equipeId, onDropUser]);
+
+  return (
+    <div ref={drop} className={cn('border-l-2 pl-4 ml-4', isOver ? 'bg-primary/10' : '')}>
+      <div className="bg-muted p-2 rounded text-center mb-2">
+        <p className="font-semibold">{gestor.name}</p>
+        <p className="text-sm text-muted-foreground">{gestor.position}</p>
       </div>
-      {hasChildren && (
-        <ul className="pl-12 pt-4 border-l-2 border-border ml-6 space-y-4">
-          {node.children.map((child) => (
-            <TreeNode key={child.id} node={child} />
-          ))}
-        </ul>
-      )}
-    </li>
+      <div className="ml-4">
+        {membros.map((m) => (
+          <DraggableUserCard key={m.id} user={m} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+const OrganizationChartInner = () => {
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [teams, setTeams] = React.useState<Team[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    async function fetchData() {
+        setIsLoading(true);
+        try {
+            const [usersRes, teamsRes] = await Promise.all([
+                fetch('/api/users'),
+                fetch('/api/teams'),
+            ]);
+            const usersData = await usersRes.json();
+            const teamsData = await teamsRes.json();
+            setUsers(usersData);
+            setTeams(teamsData);
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erro ao carregar dados', description: 'Não foi possível buscar os dados do organograma.' });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    fetchData();
+  }, [toast]);
+
+  const handleDropUser = React.useCallback(async (user: User, novaEquipeId: string) => {
+    if (user.equipe_id === novaEquipeId) return;
+
+    setUsers((prevUsers) =>
+      prevUsers.map((u) => (u.id === user.id ? { ...u, equipe_id: novaEquipeId } : u))
+    );
+
+    try {
+        const response = await fetch(`/api/users/${user.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ equipe_id: novaEquipeId }),
+        });
+        if (!response.ok) throw new Error('Falha ao atualizar usuário.');
+        toast({ title: "Usuário Movido!", description: `${user.name} foi movido para uma nova equipe.`});
+    } catch (error) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível mover o usuário. Revertendo.' });
+        setUsers((prevUsers) =>
+            prevUsers.map((u) => (u.id === user.id ? { ...u, equipe_id: user.equipe_id } : u))
+        );
+    }
+  }, []);
+
+  const handleCreateTeam = async () => {
+    const nome = prompt('Nome da nova equipe:');
+    if (!nome) return;
+    const gestorId = prompt('ID do gestor da equipe (número):');
+    if (!gestorId) return;
+    const gestorMasterId = prompt('ID do gestor master (número):');
+     if (!gestorMasterId) return;
+
+    try {
+        const response = await fetch('/api/teams', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, gestor_id: parseInt(gestorId), gestor_master_id: parseInt(gestorMasterId) }),
+        });
+        if (!response.ok) throw new Error('Falha ao criar equipe.');
+        const novaEquipe = await response.json();
+        setTeams(prev => [...prev, novaEquipe]);
+        toast({ title: 'Equipe Criada!', description: `A equipe "${nome}" foi criada com sucesso.` });
+    } catch (error) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível criar a equipe.' });
+    }
+  };
+  
+  const unassignedUsersPool = ({ onDropUser }: { onDropUser: (user: User, novaEquipeId: string | null) => void }) => {
+    const [{ isOver }, drop] = useDrop(() => ({
+      accept: ItemTypes.USER,
+      drop: (item: { user: User }) => onDropUser(item.user, null),
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+      }),
+    }), [onDropUser]);
+  
+    return (
+        <Card ref={drop} className={cn("mt-10", isOver ? 'border-primary' : '')}>
+            <CardHeader>
+                <h3 className="font-bold text-lg text-destructive">Usuários sem Equipe</h3>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-4 min-h-24">
+                {users.filter((u) => !u.equipe_id).map((user) => (
+                    <DraggableUserCard key={user.id} user={user} />
+                ))}
+            </CardContent>
+      </Card>
+    );
+  };
+
+
+  const buildHierarchy = () => {
+    const hierarchy: Record<string, Team[]> = {};
+    teams.forEach((team) => {
+      const masterId = String(team.gestor_master_id);
+      if (!hierarchy[masterId]) {
+        hierarchy[masterId] = [];
+      }
+      hierarchy[masterId].push(team);
+    });
+    return hierarchy;
+  };
+
+  if (isLoading) {
+    return (
+        <div className="space-y-4">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-48 w-full" />
+        </div>
+    );
+  }
+
+  const gruposPorMaster = buildHierarchy();
+
+  return (
+      <div className="p-1">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Organograma Hierárquico</h2>
+          <Button onClick={handleCreateTeam}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Nova Equipe
+          </Button>
+        </div>
+        {Object.entries(gruposPorMaster).map(([masterId, equipesDoMaster]) => {
+          const master = users.find((u) => u.id === parseInt(masterId));
+          return (
+            <div key={masterId} className="mb-8">
+              <div className="bg-primary/80 p-3 rounded text-center text-primary-foreground font-bold">
+                Gestor Master: {master?.name || 'Desconhecido'}
+              </div>
+              <div className="ml-4 mt-4 space-y-6">
+                {equipesDoMaster.map((equipe) => {
+                  const gestor = users.find((u) => u.id === equipe.gestor_id);
+                  const membros = users.filter((u) => u.equipe_id === equipe.id && u.id !== equipe.gestor_id);
+                  if (!gestor) return null;
+                  return (
+                    <TeamNode
+                      key={equipe.id}
+                      equipeId={equipe.id}
+                      gestor={gestor}
+                      membros={membros}
+                      onDropUser={handleDropUser}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {unassignedUsersPool({ onDropUser: handleDropUser as any })}
+      </div>
   );
 };
 
 
 export default function OrganizationChart() {
-    const [tree, setTree] = React.useState<OrganizationNode[]>([]);
-    const [isLoading, setIsLoading] = React.useState(true);
-
-    React.useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            const data = await getOrganizationTree();
-            setTree(data);
-            setIsLoading(false);
-        };
-        fetchData();
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className="space-y-4">
-                <Skeleton className="h-16 w-1/3" />
-                <div className="pl-12 space-y-4">
-                    <Skeleton className="h-16 w-1/4" />
-                    <Skeleton className="h-16 w-1/4" />
-                </div>
-            </div>
-        );
-    }
-
-    if (!tree.length) {
-        return <p className="p-4 text-center text-muted-foreground">Nenhuma estrutura organizacional encontrada.</p>;
-    }
-
     return (
-        <div className="p-4 bg-background rounded-lg overflow-x-auto">
-            <ul className="space-y-4">
-                {tree.map(rootNode => (
-                    <TreeNode key={rootNode.id} node={rootNode} />
-                ))}
-            </ul>
-        </div>
+        <DndProvider backend={HTML5Backend}>
+            <OrganizationChartInner />
+        </DndProvider>
     );
 }
