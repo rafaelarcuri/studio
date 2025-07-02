@@ -40,7 +40,7 @@ const ChatListItem = ({ chat, contact, onSelect, isActive }: { chat: Chat; conta
             <div className="flex justify-between items-center mt-1">
                 <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
                 {chat.unreadCount > 0 && (
-                    <Badge className="bg-primary text-primary-foreground h-5 w-5 p-0 flex items-center justify-center text-xs">
+                    <Badge className="bg-primary text-primary-foreground h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full">
                         {chat.unreadCount}
                     </Badge>
                 )}
@@ -61,10 +61,10 @@ const MessageStatus = ({ status }: { status: Message['status'] }) => {
         return <CheckCheck className="h-4 w-4 text-blue-500" />;
     }
     if (status === 'delivered') {
-        return <CheckCheck className="h-4 w-4" />;
+        return <CheckCheck className="h-4 w-4 text-muted-foreground" />;
     }
     if (status === 'sent') {
-        return <Check className="h-4 w-4" />;
+        return <Check className="h-4 w-4 text-muted-foreground" />;
     }
     return null;
 }
@@ -75,8 +75,8 @@ const ChatBubble = ({ message }: { message: Message }) => {
         <div className={cn('flex items-end gap-2 my-2', isMe ? 'justify-end' : 'justify-start')}>
             <div
                 className={cn(
-                    'max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-3 py-2',
-                    isMe ? 'bg-primary text-primary-foreground rounded-br-none' : 'bg-muted rounded-bl-none'
+                    'max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-3 py-2 shadow-sm',
+                    isMe ? 'bg-sent-bubble text-sent-bubble-foreground rounded-br-none' : 'bg-card rounded-bl-none'
                 )}
             >
                 <p className="text-sm">{message.text}</p>
@@ -245,7 +245,7 @@ export default function WhatsAppChat() {
                                 <Button variant="ghost" size="icon"><MoreVertical className="h-5 w-5" /></Button>
                             </div>
                         </header>
-                        <ScrollArea className="flex-1 p-4 bg-[url('https://i.redd.it/qwd83gr4b2561.png')] bg-center bg-cover">
+                        <ScrollArea className="flex-1 p-4 bg-repeat" style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')"}}>
                            {selectedChat.messages.map(msg => <ChatBubble key={msg.id} message={msg} />)}
                            <div ref={messagesEndRef} />
                         </ScrollArea>
