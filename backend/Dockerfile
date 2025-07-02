@@ -1,19 +1,19 @@
 FROM node:18
 
-# Diretório de trabalho
+# Create app directory
 WORKDIR /app
 
-# Copia os arquivos de dependência primeiro para aproveitar o cache do Docker
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
 COPY package*.json ./
 
-# Instala dependências
 RUN npm install
+# If you are building your code for production
+# RUN npm ci --omit=dev
 
-# Copia o restante dos arquivos do backend
+# Bundle app source
 COPY . .
 
-# Porta exposta
 EXPOSE 3000
-
-# Comando de inicialização
-CMD ["node", "backend-whatsapp-multi.js"]
+CMD [ "node", "backend-whatsapp-multi.js" ]

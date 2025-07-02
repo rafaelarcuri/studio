@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import WhatsAppChat from '@/components/whatsapp-chat';
-import { getWhatsAppNumbers } from '@/data/whatsapp-numbers';
+import type { WhatsAppNumber } from '@/data/whatsapp-numbers';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,10 +20,21 @@ export default function WhatsAppPage() {
 
   useEffect(() => {
     const checkStatus = async () => {
-        const numbers = await getWhatsAppNumbers();
-        const isAnyOnline = numbers.some(n => n.status === 'online');
-        setConnectionStatus(isAnyOnline ? 'online' : 'offline');
-        setIsLoadingStatus(false);
+        setIsLoadingStatus(true);
+        try {
+            const response = await fetch('/api/whatsapp/numbers');
+            if (!response.ok) {
+                throw new Error('Failed to fetch numbers');
+            }
+            const numbers: WhatsAppNumber[] = await response.json();
+            const isAnyOnline = numbers.some(n => n.status === 'online');
+            setConnectionStatus(isAnyOnline ? 'online' : 'offline');
+        } catch (error) {
+            console.error("Failed to check WhatsApp status:", error);
+            setConnectionStatus('offline'); // Default to offline on error
+        } finally {
+            setIsLoadingStatus(false);
+        }
     };
     checkStatus();
   }, []);
