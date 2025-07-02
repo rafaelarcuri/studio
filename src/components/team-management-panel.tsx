@@ -8,6 +8,7 @@ import {
   Download,
   Filter,
   Search,
+  Calendar,
 } from 'lucide-react';
 
 import type { TeamMemberPerformance } from '@/data/team-performance';
@@ -45,6 +46,11 @@ export default function TeamManagementPanel() {
     );
   }, [performanceData, searchTerm]);
 
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+
   if (isLoading) {
       return (
           <div className="space-y-4">
@@ -73,10 +79,25 @@ export default function TeamManagementPanel() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end sm:justify-normal">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Período: Este Mês
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Hoje</DropdownMenuItem>
+                <DropdownMenuItem>Esta Semana</DropdownMenuItem>
+                <DropdownMenuItem>Este Mês</DropdownMenuItem>
+                <DropdownMenuItem>Este Trimestre</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto">
                   <Filter className="mr-2 h-4 w-4" />
                   Filtrar
                   <ChevronDown className="ml-2 h-4 w-4" />
@@ -87,7 +108,7 @@ export default function TeamManagementPanel() {
                 <DropdownMenuItem>Por Equipe</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="secondary">
+            <Button variant="secondary" className="w-full sm:w-auto">
               <Download className="mr-2 h-4 w-4" />
               Exportar
             </Button>
@@ -98,15 +119,14 @@ export default function TeamManagementPanel() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Avatar</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>E-mail</TableHead>
-                <TableHead>Cargo</TableHead>
+                <TableHead>Colaborador</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Login</TableHead>
                 <TableHead>Resp. Médio</TableHead>
                 <TableHead>Atendimentos</TableHead>
                 <TableHead>Tarefas</TableHead>
+                <TableHead className="text-center">Volume Pedidos</TableHead>
+                <TableHead className="text-right">Receita (Clientes)</TableHead>
                 <TableHead>Meta %</TableHead>
                 <TableHead>SLA</TableHead>
                 <TableHead>Nota</TableHead>
@@ -116,18 +136,17 @@ export default function TeamManagementPanel() {
               {filteredData.map(({ user, ...perf }) => (
                 <TableRow key={user.id}>
                   <TableCell>
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={user.avatar} alt={user.name} />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={user.avatar} alt={user.name} />
+                          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <div className="font-medium">{user.name}</div>
+                            <div className="text-xs text-muted-foreground">{user.position}</div>
+                        </div>
+                    </div>
                   </TableCell>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>
-                    <a href={`mailto:${user.email}`} className="text-primary hover:underline">
-                      {user.email}
-                    </a>
-                  </TableCell>
-                  <TableCell>{user.position}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span
@@ -143,6 +162,8 @@ export default function TeamManagementPanel() {
                   <TableCell>{perf.avgResponseTime} min</TableCell>
                   <TableCell>{perf.attendances}</TableCell>
                   <TableCell>{perf.tasksCompleted}</TableCell>
+                  <TableCell className="font-mono text-center">{perf.orderVolume}</TableCell>
+                  <TableCell className="font-mono text-right">{formatCurrency(perf.customerRevenue)}</TableCell>
                   <TableCell>{perf.metaPercentage}%</TableCell>
                   <TableCell>
                     {perf.slaMet ? (
