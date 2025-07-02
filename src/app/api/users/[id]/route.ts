@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { updateUserTeam } from '@/data/users';
+import { updateUser } from '@/data/users';
 
 export async function PATCH(
   request: Request,
@@ -12,18 +12,21 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { equipe_id } = body;
-
-    if (equipe_id === undefined) {
-        return NextResponse.json({ error: 'equipe_id is required' }, { status: 400 });
+    
+    const updates = { ...body };
+    if (updates.gestor_id === undefined) {
+        updates.gestor_id = null;
+    }
+    if (updates.equipe_id === undefined) {
+        updates.equipe_id = null;
     }
 
-    const success = await updateUserTeam(userId, equipe_id);
+    const success = await updateUser(userId, updates);
 
     if (success) {
         return NextResponse.json({ message: 'User updated successfully' });
     } else {
-        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        return NextResponse.json({ error: 'User not found or update failed' }, { status: 404 });
     }
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
