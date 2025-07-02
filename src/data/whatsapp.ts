@@ -1,3 +1,4 @@
+
 export type Contact = {
   id: string;
   name: string;
@@ -18,6 +19,7 @@ export type Message = {
 
 export type Chat = {
   contactId: string;
+  assigneeId?: number;
   unreadCount: number;
   messages: Message[];
   lastMessage: string;
@@ -26,16 +28,17 @@ export type Chat = {
 };
 
 export const mockContacts: Contact[] = [
-  { id: 'contact-1', name: 'João da Silva', avatar: 'https://i.pravatar.cc/150?u=11', phone: '+55 11 98765-4321', email: 'joao.silva@cliente.com', isOnline: true, tags: ['VIP', 'Compra Recorrente'] },
-  { id: 'contact-2', name: 'Maria Oliveira', avatar: 'https://i.pravatar.cc/150?u=12', phone: '+55 21 91234-5678', email: 'maria.o@cliente.com', isOnline: false, tags: ['Suporte Pendente'] },
-  { id: 'contact-3', name: 'Supermercado Central', avatar: 'https://i.pravatar.cc/150?u=13', phone: '+55 31 99876-5432', email: 'compras@central.com', isOnline: true, tags: ['Atacado'] },
-  { id: 'contact-4', name: 'Padaria Pão Quente', avatar: 'https://i.pravatar.cc/150?u=14', phone: '+55 41 98765-1122', email: 'contato@paoquente.com', isOnline: false, tags: [] },
-  { id: 'contact-5', name: 'Oficina Mecânica Veloz', avatar: 'https://i.pravatar.cc/150?u=15', phone: '+55 51 91234-2233', email: 'orcamento@oficinaveloz.com.br', isOnline: true, tags: ['Orçamento Aprovado'] },
+  { id: 'contact-1', name: 'João da Silva', avatar: 'https://i.pravatar.cc/150?u=11', phone: '(11) 98765-4321', email: 'joao.silva@cliente.com', isOnline: true, tags: ['VIP', 'Compra Recorrente'] },
+  { id: 'contact-2', name: 'Maria Oliveira', avatar: 'https://i.pravatar.cc/150?u=12', phone: '(21) 91234-5678', email: 'maria.o@cliente.com', isOnline: false, tags: ['Suporte Pendente'] },
+  { id: 'contact-3', name: 'Supermercado Central', avatar: 'https://i.pravatar.cc/150?u=13', phone: '(31) 99876-5432', email: 'compras@central.com', isOnline: true, tags: ['Atacado'] },
+  { id: 'contact-4', name: 'Padaria Pão Quente', avatar: 'https://i.pravatar.cc/150?u=14', phone: '(41) 98765-1122', email: 'contato@paoquente.com', isOnline: false, tags: [] },
+  { id: 'contact-5', name: 'Oficina Mecânica Veloz', avatar: 'https://i.pravatar.cc/150?u=15', phone: '(51) 91234-2233', email: 'orcamento@oficinaveloz.com.br', isOnline: true, tags: ['Orçamento Aprovado'] },
 ];
 
 export const mockChats: Chat[] = [
   {
     contactId: 'contact-1',
+    assigneeId: 1,
     unreadCount: 2,
     lastMessage: 'Ok, combinado. Fico no aguardo!',
     lastMessageTime: '14:30',
@@ -49,6 +52,7 @@ export const mockChats: Chat[] = [
   },
   {
     contactId: 'contact-2',
+    assigneeId: 2,
     unreadCount: 0,
     lastMessage: 'Você: Perfeito, Maria. Pedido confirmado!',
     lastMessageTime: '11:15',
@@ -60,6 +64,7 @@ export const mockChats: Chat[] = [
   },
   {
     contactId: 'contact-3',
+    assigneeId: 1,
     unreadCount: 0,
     lastMessage: 'Agradecemos o contato!',
     lastMessageTime: 'Ontem',
@@ -72,6 +77,7 @@ export const mockChats: Chat[] = [
   },
     {
     contactId: 'contact-4',
+    assigneeId: 3,
     unreadCount: 1,
     lastMessage: 'Já estamos preparando para entrega.',
     lastMessageTime: '09:45',
@@ -83,6 +89,7 @@ export const mockChats: Chat[] = [
   },
    {
     contactId: 'contact-5',
+    assigneeId: 2,
     unreadCount: 0,
     lastMessage: 'Você: Sem problemas, tenha um bom dia!',
     lastMessageTime: 'Sexta',

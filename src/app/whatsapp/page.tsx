@@ -1,14 +1,31 @@
+
 'use client';
 
+import * as React from 'react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import WhatsAppChat from '@/components/whatsapp-chat';
+import { getWhatsAppNumbers } from '@/data/whatsapp-numbers';
+import { Badge } from '@/components/ui/badge';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function WhatsAppPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const [connectionStatus, setConnectionStatus] = React.useState<'online' | 'offline'>('offline');
+  const [isLoadingStatus, setIsLoadingStatus] = React.useState(true);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+        const numbers = await getWhatsAppNumbers();
+        const isAnyOnline = numbers.some(n => n.status === 'online');
+        setConnectionStatus(isAnyOnline ? 'online' : 'offline');
+        setIsLoadingStatus(false);
+    };
+    checkStatus();
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
@@ -35,7 +52,17 @@ export default function WhatsAppPage() {
     <main className="p-4 sm:p-6 lg:p-8 max-w-full mx-auto">
       <header className="flex items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Central de Atendimento</h1>
+           <div className="flex items-center gap-3">
+                <h1 className="text-2xl sm:text-3xl font-bold">Central de Atendimento</h1>
+                {isLoadingStatus ? (
+                    <Skeleton className="h-6 w-28" />
+                ) : (
+                    <Badge variant={connectionStatus === 'online' ? 'default' : 'destructive'} className={connectionStatus === 'online' ? 'bg-green-600' : ''}>
+                        {connectionStatus === 'online' ? <CheckCircle2 className="mr-2 h-4 w-4" /> : <AlertCircle className="mr-2 h-4 w-4" />}
+                        {connectionStatus === 'online' ? 'Conectado' : 'Desconectado'}
+                    </Badge>
+                )}
+            </div>
           <p className="text-muted-foreground">
             Gerencie suas conversas do WhatsApp em um único lugar.
           </p>
