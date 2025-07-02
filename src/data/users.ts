@@ -150,7 +150,20 @@ export const addUser = async (newUser: Omit<User, 'docId'>): Promise<string | nu
 };
 
 export const updateUser = async (userId: number, updatedData: Partial<Omit<User, 'id' | 'docId' | 'password'>>): Promise<boolean> => {
-    if (!db) return false;
+    if (!db) {
+        if (userId === adminUser.id) {
+            Object.assign(adminUser, updatedData);
+            console.log(`[LOG] Updated admin user with`, updatedData);
+            return true;
+        }
+        const userIndex = mockUsers.findIndex(u => u.id === userId);
+        if (userIndex > -1) {
+            mockUsers[userIndex] = { ...mockUsers[userIndex], ...updatedData };
+            console.log(`[LOG] Updated user ${userId} with`, updatedData);
+            return true;
+        }
+        return false;
+    }
     try {
         const snapshot = await db.collection('users').where('id', '==', userId).limit(1).get();
         if (snapshot.empty) return false;
