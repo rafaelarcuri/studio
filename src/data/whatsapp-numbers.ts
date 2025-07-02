@@ -1,17 +1,20 @@
 'use server';
 
-import { db } from '@/lib/firebase';
+// This file now only contains the type definition and the mock data source.
+// All the logic for manipulating this data is now handled via API routes.
+// This better simulates a real-world scenario where the frontend doesn't
+// have direct access to the backend's database or data manipulation logic.
 
 export type WhatsAppNumber = {
   id: string; // Will be the phone number
-  docId: string; // Firestore document ID
+  docId: string; // Simulates a Firestore document ID
   name: string; // A custom name for the number, e.g., "Vendas Varejo"
   status: 'online' | 'offline' | 'expired' | 'pending';
   lastPairedAt: string; // ISO Date string
   pairedBy: string; // Name of the admin who paired it
 };
 
-const mockWhatsAppNumbers: WhatsAppNumber[] = [
+let mockWhatsAppNumbers: WhatsAppNumber[] = [
   {
     id: '+5511912345678',
     docId: 'mock-wa-1',
@@ -38,10 +41,11 @@ const mockWhatsAppNumbers: WhatsAppNumber[] = [
   },
 ];
 
+// --- Internal Data Access Functions (not for client-side use) ---
+
 export const getWhatsAppNumbers = async (): Promise<WhatsAppNumber[]> => {
-    // In a real app, this would fetch from Firestore
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-    return mockWhatsAppNumbers;
+    await new Promise(resolve => setTimeout(resolve, 300)); // Simulate latency
+    return JSON.parse(JSON.stringify(mockWhatsAppNumbers)); // Return a copy
 };
 
 export const updateWhatsAppNumberStatus = async (id: string, status: WhatsAppNumber['status']): Promise<boolean> => {
@@ -51,23 +55,27 @@ export const updateWhatsAppNumberStatus = async (id: string, status: WhatsAppNum
         if(status === 'online') {
             number.lastPairedAt = new Date().toISOString();
         }
-        console.log(`[LOG] Status for ${id} changed to ${status}.`);
+        console.log(`[Mock DB] Status for ${id} changed to ${status}.`);
         return true;
     }
     return false;
 }
 
-export const addWhatsAppNumber = async (newNumber: Omit<WhatsAppNumber, 'docId'>): Promise<boolean> => {
-    mockWhatsAppNumbers.push({ ...newNumber, docId: `mock-wa-${Date.now()}` });
-    console.log(`[LOG] Added new number ${newNumber.id}.`);
-    return true;
+export const addWhatsAppNumber = async (newNumber: Omit<WhatsAppNumber, 'docId'>): Promise<WhatsAppNumber | null> => {
+    if (mockWhatsAppNumbers.some(n => n.id === newNumber.id)) {
+        return null; // Number already exists
+    }
+    const newEntry = { ...newNumber, docId: `mock-wa-${Date.now()}` };
+    mockWhatsAppNumbers.push(newEntry);
+    console.log(`[Mock DB] Added new number ${newNumber.id}.`);
+    return newEntry;
 }
 
 export const deleteWhatsAppNumber = async (id: string): Promise<boolean> => {
     const index = mockWhatsAppNumbers.findIndex(n => n.id === id);
     if (index > -1) {
         mockWhatsAppNumbers.splice(index, 1);
-        console.log(`[LOG] Deleted number ${id}.`);
+        console.log(`[Mock DB] Deleted number ${id}.`);
         return true;
     }
     return false;
