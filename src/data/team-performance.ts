@@ -31,8 +31,10 @@ const generateMockPerformanceData = async (): Promise<TeamMemberPerformance[]> =
         const userTasks = tasks.filter(t => t.assigneeId === user.id);
         const completedTasks = userTasks.filter(t => t.status === 'concluida').length;
         const totalInteractions = userTasks.reduce((sum, t) => sum + (t.interactions || 0), 0);
-        const totalResponseTime = userTasks.reduce((sum, t) => sum + (t.responseTimeMinutes || 0), 0);
-        const avgResponseTime = userTasks.length > 0 ? totalResponseTime / userTasks.length : 0;
+        
+        const tasksWithResponseTime = userTasks.filter(t => t.responseTimeMinutes);
+        const totalResponseTime = tasksWithResponseTime.reduce((sum, t) => sum + t.responseTimeMinutes!, 0);
+        const avgResponseTime = tasksWithResponseTime.length > 0 ? totalResponseTime / tasksWithResponseTime.length : 0;
         
         // Fetch customer data for this salesperson
         const customerSales = await getCustomerSalesDataBySalesperson(user.id);
