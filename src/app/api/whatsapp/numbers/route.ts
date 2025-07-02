@@ -1,32 +1,37 @@
 // src/app/api/whatsapp/numbers/route.ts
 import { NextResponse } from 'next/server';
-import { getWhatsAppNumbers, addWhatsAppNumber, WhatsAppNumber } from '@/data/whatsapp-numbers';
+
+const BACKEND_URL = process.env.WHATSAPP_BACKEND_URL || 'http://localhost:3000';
 
 export async function GET() {
-  const numbers = await getWhatsAppNumbers();
-  return NextResponse.json(numbers);
+  try {
+    const response = await fetch(`${BACKEND_URL}/numbers`);
+    if (!response.ok) {
+        throw new Error(`Backend error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    console.error('[API PROXY GET] Error:', error);
+    return NextResponse.json({ error: 'Failed to connect to WhatsApp backend' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
-  const body = await request.json() as Omit<WhatsAppNumber, 'id' | 'docId' | 'status' | 'lastPairedAt' | 'pairedBy'> & { phone: string; pairedBy: string; };
-
-  if (!body.name || !body.phone) {
-    return NextResponse.json({ error: 'Name and phone are required' }, { status: 400 });
-  }
-
-  const newEntry: Omit<WhatsAppNumber, 'docId'> = {
-    id: body.phone,
-    name: body.name,
-    status: 'pending',
-    lastPairedAt: new Date().toISOString(),
-    pairedBy: body.pairedBy,
-  };
-  
-  const addedNumber = await addWhatsAppNumber(newEntry);
-
-  if (addedNumber) {
-    return NextResponse.json(addedNumber, { status: 201 });
-  } else {
-    return NextResponse.json({ error: 'Failed to add number' }, { status: 500 });
+  try {
+    const body = await request.json();
+    const response = await fetch(`${BACKEND_URL}/numbers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+     if (!response.ok) {
+        throw new Error(`Backend error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    console.error('[API PROXY POST] Error:', error);
+    return NextResponse.json({ error: 'Failed to connect to WhatsApp backend' }, { status: 500 });
   }
 }

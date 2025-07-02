@@ -1,0 +1,13 @@
+{
+  "name": "whatsapp-backend",
+  "version": "1.0.0",
+  "description": "Backend service for WhatsApp integration",
+  "main": "backend-whatsapp-multi.js",
+  "scripts": {
+    "start": "node backend-whatsapp-multi.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
