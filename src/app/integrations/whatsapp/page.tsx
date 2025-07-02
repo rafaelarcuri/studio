@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import WhatsAppManagementPanel from '@/components/whatsapp-management-panel';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function WhatsAppManagementPage() {
@@ -37,19 +37,27 @@ export default function WhatsAppManagementPage() {
 
   return (
     <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-      <header className="flex items-center gap-4 mb-8">
-         <Button asChild variant="outline" size="icon" className="shrink-0">
-            <Link href="/integrations">
-                <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">Voltar para Integrações</span>
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+            <Button asChild variant="outline" size="icon" className="shrink-0">
+                <Link href="/integrations">
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="sr-only">Voltar para Integrações</span>
+                </Link>
+            </Button>
+            <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Gerenciar Números WhatsApp</h1>
+            <p className="text-muted-foreground">
+                Conecte, visualize o status e gerencie os números do WhatsApp Business.
+            </p>
+            </div>
+        </div>
+        <Button asChild>
+            <Link href="/integrations/whatsapp/flow">
+                <Bot className="mr-2 h-4 w-4" />
+                Configurar Fluxo de Atendimento
             </Link>
         </Button>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Gerenciar Números WhatsApp</h1>
-          <p className="text-muted-foreground">
-            Conecte, visualize o status e gerencie os números do WhatsApp Business.
-          </p>
-        </div>
       </header>
       <WhatsAppManagementPanel />
     </main>
