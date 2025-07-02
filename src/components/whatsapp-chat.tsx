@@ -1,6 +1,8 @@
+
 'use client';
 
 import * as React from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, MoreVertical, Paperclip, Send, Smile, User, Phone, Video, MessageSquare, Check, CheckCheck, Mail, Tag, Edit } from 'lucide-react';
 
 import { mockChats, mockContacts, type Chat, type Contact, type Message } from '@/data/whatsapp';
@@ -90,7 +92,7 @@ const ChatBubble = ({ message }: { message: Message }) => {
 };
 
 const ContactInfoPanel = ({ contact }: { contact: Contact }) => (
-    <aside className="w-full md:w-1/3 lg:w-1/4 border-l flex flex-col">
+    <aside className="w-full md:w-1/3 lg:w-1/4 border-l flex-col hidden lg:flex">
         <header className="p-4 border-b flex items-center justify-center">
             <h3 className="font-semibold text-lg">Informações do Contato</h3>
         </header>
@@ -136,14 +138,45 @@ const ContactInfoPanel = ({ contact }: { contact: Contact }) => (
 
 
 export default function WhatsAppChat() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [chats, setChats] = React.useState<Chat[]>(mockChats.sort((a,b) => new Date(b.messages[b.messages.length - 1].timestamp).getTime() - new Date(a.messages[a.messages.length - 1].timestamp).getTime()));
     const [contacts, setContacts] = React.useState<Contact[]>(mockContacts);
-    const [selectedChatId, setSelectedChatId] = React.useState<string | null>(chats[0]?.contactId || null);
+    const [selectedChatId, setSelectedChatId] = React.useState<string | null>(null);
     const [message, setMessage] = React.useState('');
+    const [urlProcessed, setUrlProcessed] = React.useState(false);
 
     const selectedChat = chats.find(c => c.contactId === selectedChatId);
     const selectedContact = contacts.find(c => c.id === selectedChatId);
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
+    
+    const handleSelectChat = React.useCallback((contactId: string) => {
+        setSelectedChatId(contactId);
+        setChats(currentChats => currentChats.map(chat => 
+            chat.contactId === contactId ? { ...chat, unreadCount: 0 } : chat
+        ));
+    }, []);
+
+    React.useEffect(() => {
+        if (urlProcessed || !chats.length) return;
+
+        const contactIdFromUrl = searchParams.get('contactId');
+        if (contactIdFromUrl) {
+            if (chats.some(c => c.contactId === contactIdFromUrl)) {
+                handleSelectChat(contactIdFromUrl);
+                // Clean the URL to avoid re-triggering on refresh, only if needed
+                if (searchParams.has('contactId')) {
+                    router.replace('/whatsapp', { scroll: false });
+                }
+            }
+            setUrlProcessed(true);
+        } else if (!selectedChatId) {
+            // No URL param, set default
+            setSelectedChatId(chats[0].contactId);
+            setUrlProcessed(true); // Mark as processed so we don't override user selection
+        }
+    }, [searchParams, chats, router, urlProcessed, handleSelectChat, selectedChatId]);
+
 
     React.useEffect(() => {
         messagesEndRef.current?.scrollIntoView();
@@ -186,17 +219,6 @@ export default function WhatsAppChat() {
         setChats(updatedChats.sort((a,b) => new Date(b.messages[b.messages.length - 1].timestamp).getTime() - new Date(a.messages[a.messages.length - 1].timestamp).getTime()));
         setMessage('');
     };
-    
-    const handleSelectChat = (contactId: string) => {
-        setSelectedChatId(contactId);
-        const updatedChats = chats.map(chat => {
-            if (chat.contactId === contactId) {
-                return { ...chat, unreadCount: 0 };
-            }
-            return chat;
-        });
-        setChats(updatedChats);
-    }
 
     return (
         <div className="flex h-[calc(100vh-theme(spacing.40))] bg-card border rounded-lg overflow-hidden">

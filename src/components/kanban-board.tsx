@@ -17,11 +17,14 @@ import {
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { PieChart, ListFilter, Calendar } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import type { Task, Status } from '@/data/tasks';
 import { getTasks, updateTask } from '@/data/tasks';
 import type { User } from '@/data/users';
 import { getUsers } from '@/data/users';
+import { mockContacts } from '@/data/whatsapp';
+import { useToast } from '@/hooks/use-toast';
 import { KanbanColumn } from '@/components/kanban-column';
 import { KanbanCard } from '@/components/kanban-card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +42,8 @@ export default function KanbanBoard() {
   const [users, setUsers] = React.useState<User[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [activeTask, setActiveTask] = React.useState<Task | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -76,14 +81,18 @@ export default function KanbanBoard() {
 
     if (over && active.id !== over.id) {
       const activeIndex = tasks.findIndex((item) => item.id === active.id);
-      const overId = over.id;
+      const task = tasks[activeIndex];
+      if (!task) return;
       
+      const overId = over.id;
       const overIsColumn = initialColumns.some(c => c.id === overId);
 
       if (overIsColumn) {
           const newStatus = overId as Status;
-          if (tasks[activeIndex].status !== newStatus) {
-            const updatedTask = { ...tasks[activeIndex], status: newStatus };
+          const oldStatus = task.status;
+
+          if (oldStatus !== newStatus) {
+            const updatedTask = { ...task, status: newStatus };
             // Update local state for immediate feedback
             setTasks(items => {
                 items[activeIndex] = updatedTask;
@@ -91,6 +100,25 @@ export default function KanbanBoard() {
             });
             // Persist change to the database
             updateTask(active.id as string, { status: newStatus });
+            
+            // Integration Logic
+            if (oldStatus === 'pendente' && newStatus === 'em_andamento') {
+                const contact = mockContacts.find(c => c.phone === task.clientPhone);
+                if (contact) {
+                    router.push(`/whatsapp?contactId=${contact.id}`);
+                } else {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Atendimento não iniciado',
+                        description: `Cliente ${task.clientName} não possui um contato no WhatsApp para iniciar a conversa.`,
+                    });
+                }
+            } else if (newStatus === 'concluida') {
+                toast({
+                    title: 'Tarefa Concluída!',
+                    description: `A tarefa "${task.title}" foi finalizada e registrada com sucesso.`,
+                });
+            }
           }
       }
     }
