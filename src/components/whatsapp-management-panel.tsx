@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { io, type Socket } from 'socket.io-client';
 import {
   AlertCircle,
   CheckCircle2,
@@ -30,6 +31,8 @@ import { ptBR } from 'date-fns/locale';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_WHATSAPP_BACKEND_URL || 'http://localhost:3000';
+
 const statusConfig = {
   online: { icon: CheckCircle2, color: 'bg-green-500', text: 'Online' },
   offline: { icon: XCircle, color: 'bg-gray-500', text: 'Offline' },
@@ -46,12 +49,11 @@ export default function WhatsAppManagementPanel() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [numberToDelete, setNumberToDelete] = React.useState<WhatsAppNumber | null>(null);
   
-  // State for the pairing process
   const [pairingStep, setPairingStep] = React.useState<'form' | 'qr'>('form');
   const [pairingData, setPairingData] = React.useState({ name: '', phone: '' });
   const [qrCode, setQrCode] = React.useState('');
   const [isConnecting, setIsConnecting] = React.useState(false);
-
+  const [socket, setSocket] = React.useState<Socket | null>(null);
 
   const fetchNumbers = React.useCallback(async () => {
     try {
@@ -67,9 +69,41 @@ export default function WhatsAppManagementPanel() {
   }, [toast]);
 
   React.useEffect(() => {
-    setIsLoading(true);
     fetchNumbers();
-  }, [fetchNumbers]);
+    
+    const newSocket = io(BACKEND_URL);
+    setSocket(newSocket);
+
+    newSocket.on('qr', ({ number, qr }) => {
+      setQrCode(qr);
+      setPairingStep('qr');
+      setIsConnecting(false);
+      toast({ title: 'Escaneie o QR Code', description: `Vincule o número ${number} usando o app do WhatsApp.` });
+    });
+
+    newSocket.on('ready', ({ number: readyNumber }) => {
+      toast({ title: 'Número Conectado!', description: `O número ${readyNumber.name} foi conectado com sucesso.` });
+      fetchNumbers();
+      setIsPairingModalOpen(false);
+    });
+
+    newSocket.on('pairing-error', ({ message }) => {
+      toast({ variant: 'destructive', title: 'Erro de Pareamento', description: message });
+      setIsConnecting(false);
+    });
+
+    newSocket.on('status-update', ({ number: updatedNumber }) => {
+        setNumbers(prev => prev.map(n => n.id === updatedNumber.id ? updatedNumber : n));
+    });
+
+    newSocket.on('number-deleted', ({ id }) => {
+        setNumbers(prev => prev.filter(n => n.id !== id));
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [fetchNumbers, toast]);
   
   const updateStatus = async (id: string, status: WhatsAppNumber['status']) => {
     try {
@@ -91,7 +125,6 @@ export default function WhatsAppManagementPanel() {
     const success = await updateStatus(id, 'online');
     if (success) {
       toast({ title: 'Reconectado!', description: `A sessão foi reestabelecida.` });
-      await fetchNumbers();
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: `Não foi possível reconectar.` });
     }
@@ -101,7 +134,6 @@ export default function WhatsAppManagementPanel() {
     const success = await updateStatus(id, 'offline');
     if (success) {
         toast({ title: 'Desconectado!', description: `O número ${id} foi desconectado.` });
-        await fetchNumbers();
     } else {
         toast({ variant: 'destructive', title: 'Erro!', description: `Não foi possível desconectar.` });
     }
@@ -122,7 +154,7 @@ export default function WhatsAppManagementPanel() {
                 title: 'Número Removido',
                 description: `O número ${numberToDelete.name} (${numberToDelete.id}) foi removido.`,
             });
-            await fetchNumbers();
+            // The socket 'number-deleted' event will update the state
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erro!', description: `Não foi possível remover o número.` });
         }
@@ -144,42 +176,12 @@ export default function WhatsAppManagementPanel() {
         toast({ variant: 'destructive', title: 'Erro', description: 'Nome e número são obrigatórios.' });
         return;
     }
-    setIsConnecting(true);
-    
-    try {
-        // 1. Create the number entry in the backend
-        const addResponse = await fetch('/api/whatsapp/numbers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...pairingData, pairedBy: user?.name ?? 'Admin' }),
-        });
-        if (!addResponse.ok) throw new Error('Failed to create number entry.');
-        const newNumber: WhatsAppNumber = await addResponse.json();
-
-        // 2. Fetch the QR code for the new number
-        const qrResponse = await fetch(`/api/whatsapp/numbers/${newNumber.id}/qr`);
-        if (!qrResponse.ok) throw new Error('Failed to fetch QR code.');
-        const { qr } = await qrResponse.json();
-        
-        setQrCode(qr);
-        setPairingStep('qr');
-        toast({ title: 'Escaneie o QR Code', description: `Vincule o número ${newNumber.id} usando o app do WhatsApp.` });
-
-        // 3. Simulate the pairing process
-        setTimeout(async () => {
-            const success = await updateStatus(newNumber.id, 'online');
-            if (success) {
-                toast({ title: 'Número Conectado!', description: `O número ${newNumber.name} foi conectado com sucesso.` });
-                await fetchNumbers();
-                setIsPairingModalOpen(false);
-            }
-        }, 8000);
-
-    } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro de Pareamento', description: 'Não foi possível iniciar o pareamento. Tente novamente.' });
-    } finally {
-        setIsConnecting(false);
+    if (!socket) {
+        toast({ variant: 'destructive', title: 'Erro', description: 'Conexão com o servidor não estabelecida.' });
+        return;
     }
+    setIsConnecting(true);
+    socket.emit('start-session', { ...pairingData, pairedBy: user?.name ?? 'Admin' });
   };
 
   if (isLoading) {
@@ -278,7 +280,9 @@ export default function WhatsAppManagementPanel() {
           {pairingStep === 'qr' && (
             <div className="py-4">
               <div className="flex items-center justify-center p-4 bg-muted rounded-lg">
-                {qrCode ? (
+                {isConnecting ? (
+                  <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                ) : qrCode ? (
                     <Image src={qrCode} width={256} height={256} alt="QR Code" data-ai-hint="qr code"/>
                 ) : (
                     <Skeleton className="h-64 w-64" />

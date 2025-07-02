@@ -1,7 +1,17 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require("socket.io");
 const cors = require('cors');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Adjust for production
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  }
+});
+
 const port = process.env.PORT || 3000;
 
 app.use(cors());
@@ -35,6 +45,60 @@ let mockWhatsAppNumbers = [
   },
 ];
 
+
+// --- Socket.IO Logic ---
+io.on('connection', (socket) => {
+  console.log(`Socket connected: ${socket.id}`);
+
+  socket.on('start-session', (data) => {
+    const { name, phone, pairedBy } = data;
+    console.log(`Attempting to start session for ${phone}`);
+
+    if (!name || !phone) {
+      console.error('Name and phone are required');
+      socket.emit('pairing-error', { number: phone, message: 'Nome e número são obrigatórios.' });
+      return;
+    }
+    if (mockWhatsAppNumbers.some(n => n.id === phone)) {
+        console.error('Number already exists');
+        socket.emit('pairing-error', { number: phone, message: 'Este número já está cadastrado.' });
+        return;
+    }
+
+    const newEntry = {
+      id: phone,
+      name: name,
+      status: 'pending',
+      lastPairedAt: new Date().toISOString(),
+      pairedBy: pairedBy,
+      docId: `mock-wa-${Date.now()}`
+    };
+    mockWhatsAppNumbers.push(newEntry);
+    
+    const qrCodeUrl = `https://placehold.co/256x256.png?text=QR+para+${encodeURIComponent(phone)}`;
+    socket.emit('qr', { number: phone, qr: qrCodeUrl });
+    console.log(`Sent QR for ${phone}`);
+    
+    // Simulate successful pairing after a delay
+    setTimeout(() => {
+      const numberIndex = mockWhatsAppNumbers.findIndex(n => n.id === phone);
+      if (numberIndex > -1) {
+        mockWhatsAppNumbers[numberIndex].status = 'online';
+        mockWhatsAppNumbers[numberIndex].lastPairedAt = new Date().toISOString();
+        const updatedNumber = mockWhatsAppNumbers[numberIndex];
+        console.log(`Session ready for ${phone}`);
+        // Emit to all clients so the list updates everywhere
+        io.emit('ready', { number: updatedNumber });
+      }
+    }, 8000); // 8-second delay to simulate scanning
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`Socket disconnected: ${socket.id}`);
+  });
+});
+
+
 // --- API Endpoints ---
 
 // GET /numbers - Get all numbers
@@ -42,37 +106,6 @@ app.get('/numbers', (req, res) => {
   res.json(mockWhatsAppNumbers);
 });
 
-// POST /numbers - Add a new number
-app.post('/numbers', (req, res) => {
-  const { name, phone, pairedBy } = req.body;
-  if (!name || !phone) {
-    return res.status(400).json({ error: 'Name and phone are required' });
-  }
-  if (mockWhatsAppNumbers.some(n => n.id === phone)) {
-      return res.status(409).json({ error: 'Number already exists' });
-  }
-  const newEntry = {
-    id: phone,
-    name: name,
-    status: 'pending',
-    lastPairedAt: new Date().toISOString(),
-    pairedBy: pairedBy,
-    docId: `mock-wa-${Date.now()}`
-  };
-  mockWhatsAppNumbers.push(newEntry);
-  res.status(201).json(newEntry);
-});
-
-// GET /numbers/:id/qr - Get QR code
-app.get('/numbers/:id/qr', (req, res) => {
-    const { id } = req.params;
-    const number = mockWhatsAppNumbers.find(n => n.id === id);
-    if (!number) {
-        return res.status(404).json({ error: 'Number not found' });
-    }
-    const qrCodeUrl = `https://placehold.co/256x256.png?text=QR+para+${encodeURIComponent(id)}`;
-    res.json({ qr: qrCodeUrl });
-});
 
 // PUT /numbers/:id/status - Update status
 app.put('/numbers/:id/status', (req, res) => {
@@ -84,6 +117,7 @@ app.put('/numbers/:id/status', (req, res) => {
         if (status === 'online') {
             number.lastPairedAt = new Date().toISOString();
         }
+        io.emit('status-update', { number }); // Broadcast the change
         res.json({ message: 'Status updated successfully' });
     } else {
         res.status(404).json({ error: 'Number not found' });
@@ -95,13 +129,15 @@ app.delete('/numbers/:id', (req, res) => {
     const { id } = req.params;
     const index = mockWhatsAppNumbers.findIndex(n => n.id === id);
     if (index > -1) {
-        mockWhatsAppNumbers.splice(index, 1);
+        const [deletedNumber] = mockWhatsAppNumbers.splice(index, 1);
+        io.emit('number-deleted', { id: deletedNumber.id }); // Broadcast the change
         res.json({ message: 'Number deleted successfully' });
     } else {
         res.status(404).json({ error: 'Number not found' });
     }
 });
 
-app.listen(port, () => {
-  console.log(`Backend do WhatsApp rodando em http://localhost:${port}`);
+
+server.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
