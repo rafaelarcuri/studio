@@ -9,9 +9,11 @@ export type Integration = {
   logo: string;
   status: 'ativo' | 'inativo';
   apiKey: string;
+  managementUrl?: string;
 };
 
 const mockIntegrations: Integration[] = [
+  { id: 'whatsapp_business', name: 'WhatsApp Business', description: 'Gerencie conversas e pareie números para atendimento via WhatsApp.', logo: '/path/to/whatsapp-logo.png', status: 'ativo', apiKey: '', managementUrl: '/integrations/whatsapp' },
   { id: 'erp_senior', name: 'ERP Senior', description: 'Integração com o sistema ERP Senior para sincronização de dados.', logo: '/path/to/senior-logo.png', status: 'ativo', apiKey: 'senior_mock_api_key_12345' },
   { id: 'salesforce', name: 'Salesforce', description: 'Conecte seu CRM Salesforce para unificar informações de clientes.', logo: '/path/to/salesforce-logo.png', status: 'inativo', apiKey: '' },
   { id: 'google_cloud', name: 'Google Cloud', description: 'Utilize serviços do Google Cloud para armazenamento e análise de dados.', logo: '/path/to/google-cloud-logo.png', status: 'ativo', apiKey: 'gcloud_mock_api_key_67890' },

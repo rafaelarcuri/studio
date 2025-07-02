@@ -1,8 +1,8 @@
-
 'use client';
 
 import * as React from 'react';
 import { CheckCircle, Copy, Eye, EyeOff, KeyRound, MoreVertical, Plug, Power, PowerOff, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 
 import type { Integration } from '@/data/integrations';
 import { getIntegrations, updateIntegrationApiKey, updateIntegrationStatus } from '@/data/integrations';
@@ -142,9 +142,15 @@ export default function IntegrationsPanel() {
             </CardHeader>
             <CardContent>
               <CardDescription>{integration.description}</CardDescription>
-              <Button className="mt-4 w-full" onClick={() => handleConfigure(integration)}>
-                Configurar
-              </Button>
+                {integration.managementUrl ? (
+                    <Button asChild className="mt-4 w-full">
+                        <Link href={integration.managementUrl}>Gerenciar</Link>
+                    </Button>
+                ) : (
+                    <Button className="mt-4 w-full" onClick={() => handleConfigure(integration)}>
+                        Configurar
+                    </Button>
+                )}
             </CardContent>
           </Card>
         ))}
