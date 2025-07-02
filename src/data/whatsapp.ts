@@ -3,7 +3,9 @@ export type Contact = {
   name: string;
   avatar: string;
   phone: string;
+  email: string;
   isOnline: boolean;
+  tags: string[];
 };
 
 export type Message = {
@@ -24,11 +26,11 @@ export type Chat = {
 };
 
 export const mockContacts: Contact[] = [
-  { id: 'contact-1', name: 'João da Silva', avatar: 'https://i.pravatar.cc/150?u=11', phone: '+55 11 98765-4321', isOnline: true },
-  { id: 'contact-2', name: 'Maria Oliveira', avatar: 'https://i.pravatar.cc/150?u=12', phone: '+55 21 91234-5678', isOnline: false },
-  { id: 'contact-3', name: 'Supermercado Central', avatar: 'https://i.pravatar.cc/150?u=13', phone: '+55 31 99876-5432', isOnline: true },
-  { id: 'contact-4', name: 'Padaria Pão Quente', avatar: 'https://i.pravatar.cc/150?u=14', phone: '+55 41 98765-1122', isOnline: false },
-  { id: 'contact-5', name: 'Oficina Mecânica Veloz', avatar: 'https://i.pravatar.cc/150?u=15', phone: '+55 51 91234-2233', isOnline: true },
+  { id: 'contact-1', name: 'João da Silva', avatar: 'https://i.pravatar.cc/150?u=11', phone: '+55 11 98765-4321', email: 'joao.silva@cliente.com', isOnline: true, tags: ['VIP', 'Compra Recorrente'] },
+  { id: 'contact-2', name: 'Maria Oliveira', avatar: 'https://i.pravatar.cc/150?u=12', phone: '+55 21 91234-5678', email: 'maria.o@cliente.com', isOnline: false, tags: ['Suporte Pendente'] },
+  { id: 'contact-3', name: 'Supermercado Central', avatar: 'https://i.pravatar.cc/150?u=13', phone: '+55 31 99876-5432', email: 'compras@central.com', isOnline: true, tags: ['Atacado'] },
+  { id: 'contact-4', name: 'Padaria Pão Quente', avatar: 'https://i.pravatar.cc/150?u=14', phone: '+55 41 98765-1122', email: 'contato@paoquente.com', isOnline: false, tags: [] },
+  { id: 'contact-5', name: 'Oficina Mecânica Veloz', avatar: 'https://i.pravatar.cc/150?u=15', phone: '+55 51 91234-2233', email: 'orcamento@oficinaveloz.com.br', isOnline: true, tags: ['Orçamento Aprovado'] },
 ];
 
 export const mockChats: Chat[] = [
@@ -64,8 +66,8 @@ export const mockChats: Chat[] = [
     tags: ['em andamento'],
     messages: [
       { id: 'msg-3-1', text: 'Qual o horário de funcionamento?', timestamp: '2024-07-01T18:05:00Z', sender: 'contact', status: 'read' },
-      { id: 'msg-3-2', text: 'Olá! Funcionamos das 8h às 20h, de segunda a sábado.', timestamp: '2024-07-01T18:06:00Z', sender: 'me', status: 'read' },
-      { id: 'msg-3-3', text: 'Agradecemos o contato!', timestamp: '2024-07-01T18:07:00Z', sender: 'me', status: 'read' },
+      { id: 'msg-3-2', text: 'Olá! Funcionamos das 8h às 20h, de segunda a sábado.', timestamp: '2024-07-01T18:06:00Z', sender: 'me', status: 'delivered' },
+      { id: 'msg-3-3', text: 'Agradecemos o contato!', timestamp: '2024-07-01T18:07:00Z', sender: 'me', status: 'sent' },
     ],
   },
     {
