@@ -27,6 +27,7 @@ import {
   Users,
   ClipboardList,
   ListChecks,
+  MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -123,6 +124,11 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild isActive={pathname.startsWith('/users') || pathname.startsWith('/sales/new')}>
                             <Link href="/users"><Users />Gestão de Usuários</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname.startsWith('/whatsapp')}>
+                            <Link href="/whatsapp"><MessageSquare />WhatsApp</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
