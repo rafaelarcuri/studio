@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import WhatsAppManagementPanel from '@/components/whatsapp-management-panel';
 import Link from 'next/link';
-import { ChevronLeft, Bot } from 'lucide-react';
+import { ChevronLeft, Bot, MessageCircleReply } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function WhatsAppManagementPage() {
@@ -52,12 +52,20 @@ export default function WhatsAppManagementPage() {
             </p>
             </div>
         </div>
-        <Button asChild>
-            <Link href="/integrations/whatsapp/flow">
-                <Bot className="mr-2 h-4 w-4" />
-                Configurar Fluxo de Atendimento
-            </Link>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button asChild>
+                <Link href="/integrations/whatsapp/flow">
+                    <Bot className="mr-2 h-4 w-4" />
+                    Configurar Fluxo de Atendimento
+                </Link>
+            </Button>
+            <Button asChild variant="secondary">
+                <Link href="/integrations/whatsapp/responses">
+                    <MessageCircleReply className="mr-2 h-4 w-4" />
+                    Respostas e Automações
+                </Link>
+            </Button>
+        </div>
       </header>
       <WhatsAppManagementPanel />
     </main>
