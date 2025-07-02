@@ -28,6 +28,7 @@ import {
   ClipboardList,
   ListChecks,
   MessageSquare,
+  KanbanSquare,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -88,6 +89,11 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild isActive={pathname.startsWith('/ranking')}>
                             <Link href="/ranking"><Trophy />Ranking de Clientes</Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                     <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname.startsWith('/team-management')}>
+                            <Link href="/team-management"><KanbanSquare />Painel da Equipe</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
