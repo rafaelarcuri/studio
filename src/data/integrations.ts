@@ -1,3 +1,4 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -15,6 +16,7 @@ export type Integration = {
 const mockIntegrations: Integration[] = [
   { id: 'whatsapp_business', name: 'WhatsApp Business', description: 'Gerencie conversas e pareie números para atendimento via WhatsApp.', logo: '/path/to/whatsapp-logo.png', status: 'ativo', apiKey: '', managementUrl: '/integrations/whatsapp' },
   { id: 'erp_senior', name: 'ERP Senior', description: 'Integração com o sistema ERP Senior para sincronização de dados.', logo: '/path/to/senior-logo.png', status: 'ativo', apiKey: 'senior_mock_api_key_12345' },
+  { id: 'viacep', name: 'ViaCEP', description: 'Consulte endereços a partir de um Código de Endereçamento Postal (CEP).', logo: '/path/to/viacep-logo.png', status: 'ativo', apiKey: '', managementUrl: '/integrations/viacep' },
   { id: 'salesforce', name: 'Salesforce', description: 'Conecte seu CRM Salesforce para unificar informações de clientes.', logo: '/path/to/salesforce-logo.png', status: 'inativo', apiKey: '' },
   { id: 'google_cloud', name: 'Google Cloud', description: 'Utilize serviços do Google Cloud para armazenamento e análise de dados.', logo: '/path/to/google-cloud-logo.png', status: 'ativo', apiKey: 'gcloud_mock_api_key_67890' },
   { id: 'rd_station', name: 'RD Station', description: 'Sincronize leads e oportunidades com a plataforma RD Station Marketing.', logo: '/path/to/rd-logo.png', status: 'inativo', apiKey: '' },
