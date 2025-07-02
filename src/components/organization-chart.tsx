@@ -7,7 +7,7 @@ import type { Identifier } from 'dnd-core';
 
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { Card } from './ui/card';
+import { Card, CardContent, CardHeader } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/data/users';
@@ -79,6 +79,29 @@ const TeamNode = ({ gestor, membros, onDropUser, equipeId }: { gestor: User; mem
   );
 };
 
+const UnassignedUsersPool = ({ users, onDropUser }: { users: User[], onDropUser: (user: User, novaEquipeId: string | null) => void }) => {
+    const [{ isOver }, drop] = useDrop(() => ({
+      accept: ItemTypes.USER,
+      drop: (item: { user: User }) => onDropUser(item.user, null),
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+      }),
+    }), [onDropUser]);
+  
+    return (
+        <Card ref={drop} className={cn("mt-10", isOver ? 'border-primary' : '')}>
+            <CardHeader>
+                <h3 className="font-bold text-lg text-destructive">Usuários sem Equipe</h3>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-4 min-h-24">
+                {users.filter((u) => !u.equipe_id).map((user) => (
+                    <DraggableUserCard key={user.id} user={user} />
+                ))}
+            </CardContent>
+      </Card>
+    );
+};
+
 
 const OrganizationChartInner = () => {
   const [users, setUsers] = React.useState<User[]>([]);
@@ -107,11 +130,12 @@ const OrganizationChartInner = () => {
     fetchData();
   }, [toast]);
 
-  const handleDropUser = React.useCallback(async (user: User, novaEquipeId: string) => {
+  const handleDropUser = React.useCallback(async (user: User, novaEquipeId: string | null) => {
     if (user.equipe_id === novaEquipeId) return;
 
+    const originalEquipeId = user.equipe_id;
     setUsers((prevUsers) =>
-      prevUsers.map((u) => (u.id === user.id ? { ...u, equipe_id: novaEquipeId } : u))
+      prevUsers.map((u) => (u.id === user.id ? { ...u, equipe_id: novaEquipeId || undefined } : u))
     );
 
     try {
@@ -125,10 +149,10 @@ const OrganizationChartInner = () => {
     } catch (error) {
         toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível mover o usuário. Revertendo.' });
         setUsers((prevUsers) =>
-            prevUsers.map((u) => (u.id === user.id ? { ...u, equipe_id: user.equipe_id } : u))
+            prevUsers.map((u) => (u.id === user.id ? { ...u, equipe_id: originalEquipeId } : u))
         );
     }
-  }, []);
+  }, [toast]);
 
   const handleCreateTeam = async () => {
     const nome = prompt('Nome da nova equipe:');
@@ -153,30 +177,6 @@ const OrganizationChartInner = () => {
     }
   };
   
-  const unassignedUsersPool = ({ onDropUser }: { onDropUser: (user: User, novaEquipeId: string | null) => void }) => {
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: ItemTypes.USER,
-      drop: (item: { user: User }) => onDropUser(item.user, null),
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-      }),
-    }), [onDropUser]);
-  
-    return (
-        <Card ref={drop} className={cn("mt-10", isOver ? 'border-primary' : '')}>
-            <CardHeader>
-                <h3 className="font-bold text-lg text-destructive">Usuários sem Equipe</h3>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-4 min-h-24">
-                {users.filter((u) => !u.equipe_id).map((user) => (
-                    <DraggableUserCard key={user.id} user={user} />
-                ))}
-            </CardContent>
-      </Card>
-    );
-  };
-
-
   const buildHierarchy = () => {
     const hierarchy: Record<string, Team[]> = {};
     teams.forEach((team) => {
@@ -237,7 +237,7 @@ const OrganizationChartInner = () => {
           );
         })}
 
-        {unassignedUsersPool({ onDropUser: handleDropUser as any })}
+        <UnassignedUsersPool users={users} onDropUser={handleDropUser} />
       </div>
   );
 };
