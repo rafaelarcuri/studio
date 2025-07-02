@@ -70,8 +70,8 @@ export function ProgressThermometer({ value }: PerformanceGaugeProps) {
 
         {/* Textual Feedback */}
         <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{normalizedValue.toFixed(1)}%</p>
-            <p className={cn("text-lg font-semibold", category.color)}>{category.name}</p>
+            <p className="text-xl font-bold text-foreground sm:text-2xl">{normalizedValue.toFixed(1)}%</p>
+            <p className={cn("text-base font-semibold sm:text-lg", category.color)}>{category.name}</p>
         </div>
     </div>
   )

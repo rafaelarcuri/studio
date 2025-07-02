@@ -1,5 +1,5 @@
 
-import { DollarSign, Percent, Target, TrendingUp, UserPlus, Users, ArrowUp, ArrowDown } from "lucide-react"
+import { DollarSign, Percent, Target, TrendingUp, UserPlus, Users, ArrowUp, ArrowDown, TrendingDown } from "lucide-react"
 
 import type { SalesPerson } from "@/data/sales"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,7 +18,7 @@ const StatCard = ({ icon: Icon, title, value, comparison }: {
     <div className="rounded-lg border bg-card p-4 flex flex-col items-center justify-center text-center min-h-[140px]">
         <Icon className="mb-2 h-7 w-7 text-accent" />
         <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-xl font-bold sm:text-2xl">{value}</p>
 
         {comparison ? (
             <div className="flex items-center gap-1 mt-1 text-xs">
@@ -46,9 +46,18 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
   
   const totalMargin = salesData.reduce((acc, p) => acc + p.margin, 0);
   const averageMargin = salesData.length > 0 ? totalMargin / salesData.length : 0;
+
+  const totalInadimplencia = salesData.reduce((acc, p) => acc + p.inadimplencia, 0);
+  const averageInadimplencia = salesData.length > 0 ? totalInadimplencia / salesData.length : 0;
   
+  const totalInadimplenciaValor = salesData.reduce((sum, p) => sum + (p.achieved * (p.inadimplencia / 100)), 0);
+
   const totalPositivationsAchieved = salesData.reduce((acc, p) => acc + p.positivations.achieved, 0);
   const totalPositivationsTarget = salesData.reduce((acc, p) => acc + p.positivations.target, 0);
+
+  const totalNewRegistrationsAchieved = salesData.reduce((acc, p) => acc + p.newRegistrations.achieved, 0);
+  const totalNewRegistrationsTarget = salesData.reduce((acc, p) => acc + p.newRegistrations.target, 0);
+
 
   let lastMonthTotalSales = 0;
   let previousMonthTotalSales = 0;
@@ -73,6 +82,8 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
     salesComparison.value = 100;
     salesComparison.isPositive = true;
   }
+  
+  const formatCurrency = (value: number) => `R$ ${value.toLocaleString("pt-BR")}`;
 
   return (
       <Card>
@@ -80,16 +91,16 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
           <CardTitle>Resumo da Equipe</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard 
                 icon={Target}
                 title="Meta Coletiva"
-                value={`R$ ${totalTarget.toLocaleString("pt-BR")}`}
+                value={formatCurrency(totalTarget)}
             />
             <StatCard 
                 icon={DollarSign}
                 title="Total Vendido"
-                value={`R$ ${totalAchieved.toLocaleString("pt-BR")}`}
+                value={formatCurrency(totalAchieved)}
                 comparison={salesComparison}
             />
              <StatCard 
@@ -100,7 +111,7 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
              <StatCard 
                 icon={UserPlus}
                 title="Novos Cadastros"
-                value="4 / 5"
+                value={`${totalNewRegistrationsAchieved} / ${totalNewRegistrationsTarget}`}
             />
             <StatCard 
                 icon={TrendingUp}
@@ -111,6 +122,16 @@ export function TeamOverview({ salesData, globalTarget }: TeamOverviewProps) {
                 icon={Users}
                 title="Positivação"
                 value={`${totalPositivationsAchieved} / ${totalPositivationsTarget}`}
+            />
+            <StatCard 
+                icon={TrendingDown}
+                title="Inadimplência Média (%)"
+                value={`${averageInadimplencia.toFixed(1).replace('.',',')}%`}
+            />
+            <StatCard 
+                icon={TrendingDown}
+                title="Inadimplência Total (R$)"
+                value={formatCurrency(totalInadimplenciaValor)}
             />
           </div>
         </CardContent>

@@ -33,7 +33,7 @@ export function TeamContributionChart({ salesData }: ChartsProps) {
 
   const chartConfig: ChartConfig = {
     valor: {
-      label: "Valor",
+      label: "Valor_",
       color: "hsl(var(--primary))",
     },
     percentual: {

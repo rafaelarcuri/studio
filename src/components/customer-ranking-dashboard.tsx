@@ -1,14 +1,12 @@
 
 "use client"
 
+import * as React from "react";
 import { Bar, BarChart, LabelList, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { ChevronDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardHeader,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,10 +23,23 @@ import {
 } from "@/components/ui/table"
 import type { CustomerSale } from "@/data/customers"
 import { getCustomerSalesData } from "@/data/customers"
-import { ChevronDown } from "lucide-react"
+import { Skeleton } from "./ui/skeleton";
+
 
 export default function CustomerRankingDashboard() {
-    const customerData = getCustomerSalesData()
+    const [customerData, setCustomerData] = React.useState<CustomerSale[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            const data = await getCustomerSalesData();
+            setCustomerData(data);
+            setIsLoading(false);
+        }
+        fetchData();
+    }, []);
+
     const totalValue = customerData.reduce(
         (sum, customer) => sum + customer.value,
         0
@@ -40,6 +51,22 @@ export default function CustomerRankingDashboard() {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         })}`
+
+    if (isLoading) {
+        return (
+            <div className="space-y-6">
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-1/4" />
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <Skeleton className="h-[500px] w-full" />
+                        <Skeleton className="h-[500px] w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-6">

@@ -36,7 +36,7 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const success = login(values.email, values.password);
+    const success = await login(values.email, values.password);
 
     if (success) {
       toast({
@@ -61,7 +61,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-4">
                 <Target className="h-12 w-12 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Vendas Ágil</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">Vendas Ágil</CardTitle>
             <CardDescription>Acesse seu painel de vendas</CardDescription>
         </CardHeader>
         <CardContent>

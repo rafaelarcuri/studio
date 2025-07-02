@@ -1,8 +1,8 @@
 
 import type { Metadata } from 'next'
 import './globals.css'
-import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/context/auth-context'
+import { AppLayout } from '@/components/app-layout'
 
 export const metadata: Metadata = {
   title: 'Vendas Ágil',
@@ -23,8 +23,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
-          {children}
-          <Toaster />
+          <AppLayout>
+            {children}
+          </AppLayout>
         </AuthProvider>
       </body>
     </html>
